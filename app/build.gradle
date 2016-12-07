@@ -1,0 +1,38 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.1"
+    defaultConfig {
+        applicationId "com.artyhacker.popularmovies"
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            buildConfigField "String", "API_KEY", '"5039bffadb9e7b63e94b5003fc59af10"'
+            buildConfigField "String", "BASE_IMAGE_URL", '"https://image.tmdb.org/t/p/w185"'
+            buildConfigField "String", "API_READ_KEY_V4", '"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1MDM5YmZmYWRiOWU3YjYzZTk0YjUwMDNmYzU5YWYxMCIsInN1YiI6IjU4NDNjNTU4YzNhMzY4NDY5MjAwNjAwNCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.JbdkjliqEgU5fLGF3VVo8XdBIRIJBJBZHE9VFBZGWls"'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'com.android.support:support-v4:25.0.1'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.android.support:support-vector-drawable:25.0.1'
+    testCompile 'junit:junit:4.12'
+}
