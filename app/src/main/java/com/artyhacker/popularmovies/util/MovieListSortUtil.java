@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 /**
- * Created by dh on 16-12-6.
+ * This class has been abolished!
  */
 
 public class MovieListSortUtil {

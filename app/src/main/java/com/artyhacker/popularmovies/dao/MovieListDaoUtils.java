@@ -20,8 +20,8 @@ public class MovieListDaoUtils {
     }
 
     /**
-     * "create table movielist(_id integer primary key, title varchar(100), image varchar(200), " +
-     "overview varchar(500), voteAverage real, releaseDate varchar(20), popularity real)";
+     * "_id integer primary key, title varchar(100), image varchar(200), " +
+     "overview varchar(500), voteAverage real, releaseDate varchar(20), popularity real";
      * @param arrayList
      */
     public void saveMovieList(ArrayList<MovieBean> arrayList) {
