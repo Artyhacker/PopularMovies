@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,9 +24,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.movie_date_tv) TextView movieDate;
     @BindView(R.id.movie_score_tv) TextView movieScore;
     @BindView(R.id.movie_content_tv) TextView movieOverview;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_movie_details);
         ButterKnife.bind(this);
 

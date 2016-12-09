@@ -28,6 +28,7 @@
 
             <ImageView
                 android:id="@+id/movie_image_iv"
+                tools:text="movie_image"
                 android:layout_width="@dimen/movie_details_image_width"
                 android:layout_height="@dimen/movie_details_image_height"
                 android:layout_margin="@dimen/details_image_margin"
