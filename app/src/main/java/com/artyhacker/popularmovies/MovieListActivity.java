@@ -3,6 +3,7 @@ package com.artyhacker.popularmovies;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.PersistableBundle;
+import android.provider.BaseColumns;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;

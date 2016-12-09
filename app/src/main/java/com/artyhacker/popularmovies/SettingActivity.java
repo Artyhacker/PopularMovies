@@ -15,7 +15,8 @@ public class SettingActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingFragment()).commit();
+        //getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingFragment()).commit();
+        getFragmentManager().beginTransaction().add(android.R.id.content, new SettingFragment()).commit();
 
     }
 

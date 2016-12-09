@@ -4,7 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
+import com.artyhacker.popularmovies.MovieContract;
 import com.artyhacker.popularmovies.bean.MovieBean;
 
 import java.util.ArrayList;
@@ -19,23 +21,18 @@ public class MovieListDaoUtils {
         helper = new MovieListDatabaseOpenHelper(context);
     }
 
-    /**
-     * "_id integer primary key, title varchar(100), image varchar(200), " +
-     "overview varchar(500), voteAverage real, releaseDate varchar(20), popularity real";
-     * @param arrayList
-     */
     public void saveMovieList(ArrayList<MovieBean> arrayList) {
         SQLiteDatabase db = helper.getReadableDatabase();
         for(MovieBean bean: arrayList) {
             ContentValues values = new ContentValues();
-            values.put("_id", bean.id);
-            values.put("title", bean.title);
-            values.put("image", bean.image);
-            values.put("overview", bean.overview);
-            values.put("voteAverage", bean.voteAverage);
-            values.put("releaseDate", bean.releaseDate);
-            values.put("popularity", bean.popularity);
-            db.insert("movieList", null, values);
+            values.put(MovieContract.COLUMN_ID, bean.id);
+            values.put(MovieContract.COLUME_TITLE, bean.title);
+            values.put(MovieContract.COLUME_IMAGE, bean.image);
+            values.put(MovieContract.COLUMN_OVERVIEW, bean.overview);
+            values.put(MovieContract.COLUMN_VOTE_AVERAGE, bean.voteAverage);
+            values.put(MovieContract.COLUMN_RELASE_DATE, bean.releaseDate);
+            values.put(MovieContract.COLUMN_POPULARITY, bean.popularity);
+            db.insert(MovieContract.TABLE_NAME, null, values);
         }
         db.close();
     }
@@ -70,7 +67,7 @@ public class MovieListDaoUtils {
 
     public void deleteDatebase() {
         SQLiteDatabase db = helper.getReadableDatabase();
-        db.delete("movieList", null, null);
+        db.delete(MovieContract.TABLE_NAME, null, null);
         db.close();
     }
 

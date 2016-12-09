@@ -20,7 +20,10 @@ android {
         debug {
             buildConfigField "String", "API_KEY", '"5039bffadb9e7b63e94b5003fc59af10"'
             buildConfigField "String", "BASE_IMAGE_URL", '"https://image.tmdb.org/t/p/w185"'
-            buildConfigField "String", "API_READ_KEY_V4", '"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1MDM5YmZmYWRiOWU3YjYzZTk0YjUwMDNmYzU5YWYxMCIsInN1YiI6IjU4NDNjNTU4YzNhMzY4NDY5MjAwNjAwNCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.JbdkjliqEgU5fLGF3VVo8XdBIRIJBJBZHE9VFBZGWls"'
+            buildConfigField "String", "API_READ_KEY_V4", '"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhd' +
+                    'WQiOiI1MDM5YmZmYWRiOWU3YjYzZTk0YjUwMDNmYzU5YWYxMCIsInN1YiI6IjU4NDNjNTU4YzNhMzY4ND' +
+                    'Y5MjAwNjAwNCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.JbdkjliqEgU5fLGF3VVo' +
+                    '8XdBIRIJBJBZHE9VFBZGWls"'
         }
     }
 }
@@ -33,6 +36,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile 'com.android.support:support-v4:25.0.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.squareup.okhttp3:okhttp:3.5.0'
+    compile 'com.jakewharton:butterknife:8.4.0'
     compile 'com.android.support:support-vector-drawable:25.0.1'
     testCompile 'junit:junit:4.12'
 }

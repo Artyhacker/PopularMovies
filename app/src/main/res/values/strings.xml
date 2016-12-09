@@ -90,4 +90,5 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="movie_details_title">电影详情</string>
     <string name="movie_image_description">movie_image</string>
+    <string name="MSG_NETWORK_ERROR">网络错误</string>
 </resources>
