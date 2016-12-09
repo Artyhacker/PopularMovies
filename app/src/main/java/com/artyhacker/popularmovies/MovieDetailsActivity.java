@@ -28,7 +28,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
         ButterKnife.bind(this);
-        
+
         Intent intent = getIntent();
         movieTitle.setText(intent.getStringExtra("title"));
         movieDate.setText(intent.getStringExtra("date"));

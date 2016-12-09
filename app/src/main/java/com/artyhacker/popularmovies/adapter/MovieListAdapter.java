@@ -43,18 +43,27 @@ public class MovieListAdapter extends BaseAdapter {
         return movieBeanArray.get(position).id;
     }
 
+    static class ViewHolder{
+        ImageView image;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
         if(convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.item_movie,null);
+            holder = new ViewHolder();
+            holder.image = (ImageView) convertView.findViewById(R.id.list_item_image);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
         }
         convertView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 gridView.getHeight()/2));
-
-        ImageView image = (ImageView) convertView.findViewById(R.id.list_item_image);
+        //ImageView image = (ImageView) convertView.findViewById(R.id.list_item_image);
         MovieBean bean = movieBeanArray.get(position);
         String imageUrl = BuildConfig.BASE_IMAGE_URL + bean.image;
-        Picasso.with(context).load(imageUrl).into(image);
+        Picasso.with(context).load(imageUrl).into(holder.image);
 
         return convertView;
     }
