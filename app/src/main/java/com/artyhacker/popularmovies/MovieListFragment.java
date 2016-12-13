@@ -1,15 +1,16 @@
 package com.artyhacker.popularmovies;
 
+import android.app.Fragment;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,11 +19,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
-import com.artyhacker.popularmovies.adapter.MovieListAdapter;
+import com.artyhacker.popularmovies.adapter.MovieAdapter;
 import com.artyhacker.popularmovies.bean.MovieBean;
 import com.artyhacker.popularmovies.common.ApiConfig;
+import com.artyhacker.popularmovies.common.MovieContract;
 import com.artyhacker.popularmovies.db.MovieListDaoUtils;
 
 import org.json.JSONArray;
@@ -41,31 +42,36 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 
-public class MovieListFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class MovieListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
 
     private static final int REQUEST_SUCCESS = 1;
     private static final int REQUEST_FAIL = 0;
     private String moviesBaseUrl = "";
 
+    private static final int MOVIE_LOADER_ID = 0;
+
     private ArrayList<MovieBean> movieBeanArray;
     private GridView gridView;
 
-    private Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case REQUEST_SUCCESS:
-                    gridView.setAdapter(new MovieListAdapter(getActivity(), movieBeanArray, gridView));
-                    new MovieListDaoUtils(getContext()).saveMovieList(movieBeanArray);
-                    break;
-                case REQUEST_FAIL:
-                    Toast.makeText(getActivity(), R.string.MSG_NETWORK_ERROR, Toast.LENGTH_SHORT).show();
-                    break;
-                default:
-                    super.handleMessage(msg);
-            }
-        }
+    private MovieAdapter adapter;
+
+    private static final String[] MOVIE_COLUMNS = {
+            MovieContract.MovieEntry.COLUMN_ID,
+            MovieContract.MovieEntry.COLUME_TITLE,
+            MovieContract.MovieEntry.COLUME_IMAGE,
+            MovieContract.MovieEntry.COLUMN_OVERVIEW,
+            MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
+            MovieContract.MovieEntry.COLUMN_RELASE_DATE,
+            MovieContract.MovieEntry.COLUMN_POPULARITY
     };
+
+    public static final int COL_MOVIE_ID = 0;
+    public static final int COL_MOVIE_TITLE = 1;
+    public static final int COL_MOVIE_IMAGE = 2;
+    public static final int COL_MOVIE_OVERVIEW = 3;
+    public static final int COL_MOVIE_VOTE_AVERAGE = 4;
+    public static final int COL_MOVIE_RELASE_DATE = 5;
+    public static final int COL_MOVIE_POPULARITY = 6;
 
     public MovieListFragment() {
 
@@ -81,12 +87,20 @@ public class MovieListFragment extends Fragment implements AdapterView.OnItemCli
         getMoviesList();
     }
 
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_popular_movies, container, false);
         gridView = (GridView) rootView.findViewById(R.id.fragment_grid_layout);
         gridView.setOnItemClickListener(this);
+
+        //Loader
+        Uri movieForLocationUri = Uri.parse("content://com.artyhacker.popularmovies/movie");
+        Cursor cursor = getActivity().getContentResolver().query(movieForLocationUri, null, null, null, null);
+        adapter = new MovieAdapter(getActivity(), cursor, 0, gridView);
+        gridView.setAdapter(adapter);
         return rootView;
     }
 
@@ -102,31 +116,24 @@ public class MovieListFragment extends Fragment implements AdapterView.OnItemCli
         switch (id) {
             case R.id.menu_refresh:
                 getMoviesList();
+                getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
                 break;
             case R.id.menu_setting:
                 Intent intent = new Intent(getActivity(), SettingActivity.class);
-                startActivityForResult(intent, 0);
+                startActivity(intent);
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (resultCode) {
-            case 1:
-                getMoviesList();
-                break;
-            default:
-                break;
-        }
+    public void onSortTypeChanged(){
+        getMoviesList();
+        getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
     }
 
     public void getMoviesList() {
         movieBeanArray = new ArrayList<MovieBean>();
-        //new RefreshMoviesTask().execute();
         getMovieListFromNetwork();
-        //movieListDaoUtils.saveMovieList(movieBeanArray);
     }
 
     private URL getMovieListUrl(){
@@ -163,30 +170,29 @@ public class MovieListFragment extends Fragment implements AdapterView.OnItemCli
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Message msg = new Message();
-                msg.what = REQUEST_FAIL;
-                handler.sendMessage(msg);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String reponseJson = response.body().string();
                 getMoviesListFromJson(reponseJson);
-                Message msg = new Message();
-                msg.what = REQUEST_SUCCESS;
-                handler.sendMessage(msg);
             }
         });
 
 
     }
 
+
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        MovieBean movie = movieBeanArray.get(position);
-        Intent intent = new Intent(getActivity(), MovieDetailsActivity.class);
-        intent.putExtra("id", movie.id);
-        startActivity(intent);
+    public void onItemClick(AdapterView adapterView, View view, int position, long id) {
+
+        Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+        if (cursor != null) {
+            Intent intent = new Intent(getActivity(), MovieDetailsActivity.class);
+            intent.setData(Uri.parse("content://com.artyhacker.popularmovies/movie/" + cursor.getString(COL_MOVIE_ID)));
+            startActivity(intent);
+        }
+
     }
 
     private void getMoviesListFromJson(String moviesJsonStr) {
@@ -212,72 +218,34 @@ public class MovieListFragment extends Fragment implements AdapterView.OnItemCli
                 bean.popularity = popularity;
                 movieBeanArray.add(bean);
             }
-
+            new MovieListDaoUtils(getActivity()).saveMovieList(movieBeanArray);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
+
     @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState != null) {
-            movieBeanArray = new ArrayList<MovieBean>();
-            movieBeanArray = new MovieListDaoUtils(getContext()).getMovieListfromDB();
-            //new RefreshMoviesTask().execute();
-            getMovieListFromNetwork();
-        }
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
+        super.onActivityCreated(savedInstanceState);
     }
 
-    /*
-    public class RefreshMoviesTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            HttpURLConnection connection = null;
-            BufferedReader reader = null;
-            String moviesJsonStr = "";
-
-            try {
-                URL url = new URL(getMovieListUrl());
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setReadTimeout(5000);
-                connection.setConnectTimeout(5000);
-                InputStream is = connection.getInputStream();
-                String strLine = "";
-                reader = new BufferedReader(new InputStreamReader(is));
-                StringBuilder builder = new StringBuilder();
-                while((strLine = reader.readLine()) != null) {
-                    builder.append(strLine);
-                }
-                moviesJsonStr = builder.toString();
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if(reader != null)
-                    try {
-                        reader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                if(connection != null)
-                    connection.disconnect();
-            }
-            if(!moviesJsonStr.isEmpty()) {
-                getMoviesListFromJson(moviesJsonStr);
-            }
-            return null;
-        }
-
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            gridView.setAdapter(new MovieListAdapter(getActivity(), movieBeanArray, gridView));
-        }
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri uri = Uri.parse("content://com.artyhacker.popularmovies/movie");
+        CursorLoader loader = new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, null);
+        return loader;
     }
-    */
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        adapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.swapCursor(null);
+    }
+
 }

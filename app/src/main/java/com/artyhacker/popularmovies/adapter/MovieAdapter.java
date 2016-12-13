@@ -1,34 +1,31 @@
 package com.artyhacker.popularmovies.adapter;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.CursorAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
-import com.artyhacker.popularmovies.BuildConfig;
-import com.artyhacker.popularmovies.bean.MovieBean;
+import com.artyhacker.popularmovies.MovieListFragment;
 import com.artyhacker.popularmovies.R;
 import com.artyhacker.popularmovies.common.ApiConfig;
 import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
 
 /**
  * Created by dh on 16-12-4.
  */
 
-public class MovieListAdapter extends BaseAdapter {
-    private ArrayList<MovieBean> movieBeanArray;
-    private Context context;
+public class MovieAdapter extends CursorAdapter {
+    //private ArrayList<MovieBean> movieBeanArray;
+    //private Context context;
     private GridView gridView;
-    public MovieListAdapter(Context context, ArrayList<MovieBean> movieBeanArray, GridView gridView) {
-        this.context = context;
-        this.movieBeanArray = movieBeanArray;
-        this.gridView = gridView;
-    }
+
+
+
+/*
     @Override
     public int getCount() {
         return movieBeanArray.size();
@@ -46,8 +43,9 @@ public class MovieListAdapter extends BaseAdapter {
 
     static class ViewHolder{
         ImageView image;
-    }
+    }*/
 
+    /*
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
@@ -67,5 +65,27 @@ public class MovieListAdapter extends BaseAdapter {
         Picasso.with(context).load(imageUrl).into(holder.image);
 
         return convertView;
+    }*/
+
+    public MovieAdapter(Context context, Cursor c, int flags, GridView gridView) {
+        super(context, c, flags);
+        this.gridView = gridView;
+    }
+
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_movie, parent, false);
+        view.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                gridView.getHeight()/2));
+        return view;
+    }
+
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        ImageView imageView = (ImageView) view;
+        //String urlStr = cursor.getString(cursor.getColumnIndex("image"));
+        String urlStr = cursor.getString(MovieListFragment.COL_MOVIE_IMAGE);
+        String imageUrl = ApiConfig.IMAGE_BASE_URL + urlStr;
+        Picasso.with(context).load(imageUrl).into(imageView);
     }
 }

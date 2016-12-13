@@ -6,14 +6,10 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -22,9 +18,6 @@ import android.widget.TextView;
 import com.artyhacker.popularmovies.common.ApiConfig;
 import com.artyhacker.popularmovies.common.MovieContract;
 import com.squareup.picasso.Picasso;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by dh on 16-12-5.
@@ -52,35 +45,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_details);
         //ButterKnife.bind(this);
 
-        //getMovieDetails();
     }
-/*
-    private void getMovieDetails() {
-        Intent intent = getIntent();
-        int id = intent.getIntExtra("id", 0);
-
-        Uri uri = Uri.parse("content://com.artyhacker.popularmovies/movie/" + id);
-        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                title = cursor.getString(cursor.getColumnIndex("title"));
-                image = cursor.getString(cursor.getColumnIndex("image"));
-                date = cursor.getString(cursor.getColumnIndex("releaseDate"));
-                overview = cursor.getString(cursor.getColumnIndex("overview"));
-                voteAverage = cursor.getString(cursor.getColumnIndex("voteAverage"));
-                popularity = cursor.getString(cursor.getColumnIndex("popularity"));
-            }
-        }
-        cursor.close();
-        movieTitle.setText(title);
-        movieDate.setText(date);
-        movieScore.setText(voteAverage);
-        movieOverview.setText(overview);
-        Picasso.with(this)
-                .load(ApiConfig.IMAGE_BASE_URL + image)
-                .into(movieImage);
-
-    }*/
 
     public static class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -109,7 +74,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         @Nullable
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.activity_movie_details, container, false);
+            return inflater.inflate(R.layout.fragment_movie_details, container, false);
         }
 
         @Override
