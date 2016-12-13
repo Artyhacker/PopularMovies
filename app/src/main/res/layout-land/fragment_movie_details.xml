@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -18,7 +19,8 @@
             android:padding="@dimen/details_title_padding_land"
             android:gravity="center_horizontal"
             android:textColor="@color/movie_details_text"
-            android:textSize="@dimen/details_title_textsize" />
+            android:textSize="@dimen/details_title_textsize"
+            tools:text="Title"/>
 
 
         <RelativeLayout
@@ -35,14 +37,26 @@
                 android:scaleType="fitXY"
                 android:contentDescription="@string/movie_image_description"/>
 
+            <RatingBar
+                android:id="@+id/movie_score_rb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/movie_image_iv"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="10dp"
+                android:numStars="5"
+                android:rating="4"
+                style="@style/Base.Widget.AppCompat.RatingBar.Small"/>
+
             <TextView
                 android:id="@+id/movie_date_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/movie_image_iv"
+                android:layout_toRightOf="@id/movie_score_tv"
                 android:layout_marginTop="@dimen/details_date_margintop_land"
                 android:layout_marginLeft="@dimen/details_date_marginleft_land"
-                android:textSize="@dimen/details_date_textsize" />
+                android:textSize="@dimen/details_date_textsize"
+                tools:text="2012.09.12"/>
 
             <TextView
                 android:id="@+id/movie_score_tv"
@@ -50,8 +64,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/details_score_margintop_land"
                 android:layout_marginLeft="@dimen/details_score_marginleft_land"
-                android:layout_toRightOf="@id/movie_date_tv"
-                android:textSize="@dimen/details_date_textsize" />
+                android:layout_toRightOf="@id/movie_score_rb"
+                android:text="5.7"
+                android:textColor="#ff0000"
+                android:textSize="15sp" />
             <TextView
                 android:id="@+id/movie_content_tv"
                 android:layout_width="match_parent"

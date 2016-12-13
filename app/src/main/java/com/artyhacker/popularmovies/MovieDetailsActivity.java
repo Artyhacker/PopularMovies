@@ -9,10 +9,12 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.artyhacker.popularmovies.common.ApiConfig;
@@ -23,31 +25,18 @@ import com.squareup.picasso.Picasso;
  * Created by dh on 16-12-5.
  */
 public class MovieDetailsActivity extends AppCompatActivity {
-    //private static final String BASE_IMAGE_URL = "https://image.tmdb.org/t/p/w185";
-
-    /*
-    @BindView(R.id.movie_image_iv) ImageView movieImage;
-    @BindView(R.id.movie_title_tv) TextView movieTitle;
-    @BindView(R.id.movie_date_tv) TextView movieDate;
-    @BindView(R.id.movie_score_tv) TextView movieScore;
-    @BindView(R.id.movie_content_tv) TextView movieOverview;
-
-    private String title = "";
-    private String image = "";
-    private String date = "";
-    private String overview = "";
-    private String voteAverage = "";
-    private String popularity = "";*/
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
-        //ButterKnife.bind(this);
-
     }
 
     public static class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+        private String movieDetailsUrl = "";
+        private String movieVideosUrl = "";
+        private String movieReviewUrl = "";
 
         private static final String[] MOVIE_COLUMNS = {
                 MovieContract.MovieEntry.COLUMN_ID,
@@ -110,6 +99,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
             TextView movieDate = (TextView) getView().findViewById(R.id.movie_date_tv);
             TextView movieScore = (TextView) getView().findViewById(R.id.movie_score_tv);
             TextView movieOverview = (TextView) getView().findViewById(R.id.movie_content_tv);
+            RatingBar movieRatingBar = (RatingBar) getView().findViewById(R.id.movie_score_rb);
+            movieRatingBar.setRating(Float.parseFloat(voteString)/2);
 
             movieTitle.setText(titleString);
             movieDate.setText(dateString);
@@ -118,6 +109,13 @@ public class MovieDetailsActivity extends AppCompatActivity {
             Picasso.with(getActivity())
                     .load(ApiConfig.IMAGE_BASE_URL + imageString)
                     .into(movieImage);
+
+
+            Log.d("MovieDetails", "id: " + idString);
+
+            movieDetailsUrl = ApiConfig.getMovieDetailsUrl(idString);
+            movieVideosUrl = ApiConfig.getMovieVideosUrl(idString);
+            movieReviewUrl = ApiConfig.getMovieReviewsUrl(idString);
         }
 
         @Override

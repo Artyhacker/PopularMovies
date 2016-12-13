@@ -40,7 +40,14 @@
             android:name=".provider.MovieProvider"
             android:authorities="com.artyhacker.popularmovies"
             android:enabled="true"
-            android:exported="true"></provider>
+            android:exported="true"
+            android:permission="com.artyhacker.LICENSE_TO_KILL"></provider>
     </application>
+    
+    <permission android:name="com.artyhacker.LICENSE_TO_KILL"
+        android:protectionLevel="dangerous"
+        android:label="Licenced to Kill">
+
+    </permission>
 
 </manifest>

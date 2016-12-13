@@ -32,6 +32,7 @@ public class MovieListDaoUtils {
             values.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, bean.voteAverage);
             values.put(MovieContract.MovieEntry.COLUMN_RELASE_DATE, bean.releaseDate);
             values.put(MovieContract.MovieEntry.COLUMN_POPULARITY, bean.popularity);
+
             db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
         }
         db.close();
@@ -58,6 +59,7 @@ public class MovieListDaoUtils {
                 bean.voteAverage = voteAverage;
                 bean.releaseDate = releaseDate;
                 bean.popularity = popularity;
+
                 arrayList.add(bean);
             }
         }
