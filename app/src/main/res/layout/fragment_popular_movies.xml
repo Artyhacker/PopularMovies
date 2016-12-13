@@ -1,4 +1,5 @@
-<GridView xmlns:android="http://schemas.android.com/apk/res/android"
+<GridView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_grid_layout"
     android:layout_width="match_parent"

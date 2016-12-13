@@ -1,12 +1,11 @@
-package com.artyhacker.popularmovies.dao;
+package com.artyhacker.popularmovies.db;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
-import com.artyhacker.popularmovies.MovieContract;
+import com.artyhacker.popularmovies.common.MovieContract;
 import com.artyhacker.popularmovies.bean.MovieBean;
 
 import java.util.ArrayList;
@@ -23,16 +22,17 @@ public class MovieListDaoUtils {
 
     public void saveMovieList(ArrayList<MovieBean> arrayList) {
         SQLiteDatabase db = helper.getReadableDatabase();
+        deleteDatebase();
         for(MovieBean bean: arrayList) {
             ContentValues values = new ContentValues();
-            values.put(MovieContract.COLUMN_ID, bean.id);
-            values.put(MovieContract.COLUME_TITLE, bean.title);
-            values.put(MovieContract.COLUME_IMAGE, bean.image);
-            values.put(MovieContract.COLUMN_OVERVIEW, bean.overview);
-            values.put(MovieContract.COLUMN_VOTE_AVERAGE, bean.voteAverage);
-            values.put(MovieContract.COLUMN_RELASE_DATE, bean.releaseDate);
-            values.put(MovieContract.COLUMN_POPULARITY, bean.popularity);
-            db.insert(MovieContract.TABLE_NAME, null, values);
+            values.put(MovieContract.MovieEntry.COLUMN_ID, bean.id);
+            values.put(MovieContract.MovieEntry.COLUME_TITLE, bean.title);
+            values.put(MovieContract.MovieEntry.COLUME_IMAGE, bean.image);
+            values.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, bean.overview);
+            values.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, bean.voteAverage);
+            values.put(MovieContract.MovieEntry.COLUMN_RELASE_DATE, bean.releaseDate);
+            values.put(MovieContract.MovieEntry.COLUMN_POPULARITY, bean.popularity);
+            db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
         }
         db.close();
     }
@@ -67,8 +67,7 @@ public class MovieListDaoUtils {
 
     public void deleteDatebase() {
         SQLiteDatabase db = helper.getReadableDatabase();
-        db.delete(MovieContract.TABLE_NAME, null, null);
-        db.close();
+        db.delete(MovieContract.MovieEntry.TABLE_NAME, null, null);
     }
 
 }

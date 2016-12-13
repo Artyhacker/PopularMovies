@@ -17,10 +17,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-        debug {
-            buildConfigField "String", "API_KEY", '"5039bffadb9e7b63e94b5003fc59af10"'
-            buildConfigField "String", "BASE_IMAGE_URL", '"https://image.tmdb.org/t/p/w185"'
-        }
+
     }
 }
 
