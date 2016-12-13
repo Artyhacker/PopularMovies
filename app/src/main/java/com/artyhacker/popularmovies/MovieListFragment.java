@@ -131,7 +131,7 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
     }
 
-    public void getMoviesList() {
+    private void getMoviesList() {
         movieBeanArray = new ArrayList<MovieBean>();
         getMovieListFromNetwork();
     }
@@ -160,7 +160,7 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         return url;
     }
 
-    public void getMovieListFromNetwork() {
+    private void getMovieListFromNetwork() {
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
