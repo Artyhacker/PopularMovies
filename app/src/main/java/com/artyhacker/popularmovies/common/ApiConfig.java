@@ -14,16 +14,11 @@ public class ApiConfig {
     public static final String LANGUAGE_PARAM = "language";
     public static final String LANGUAGE_VALUE_ZH = "zh-cn";
 
+    public static final String PLAY_VIDEO_BASE_URL = "https://www.youtube.com/watch?v=";
+
     private static final String MOVIE_DETAILS_BASE_URL = "http://api.themoviedb.org/3/movie/";
     public static String getMovieDetailsUrl(String id) {
-        return MOVIE_DETAILS_BASE_URL + id + "?api_key=" + API_KEY;
+        return MOVIE_DETAILS_BASE_URL + id + "?append_to_response=trailers,reviews&api_key=" + API_KEY;
     }
 
-    public static String getMovieVideosUrl(String id) {
-        return MOVIE_DETAILS_BASE_URL + id + "/videos?api_key=" + API_KEY;
-    }
-
-    public static String getMovieReviewsUrl(String id) {
-        return MOVIE_DETAILS_BASE_URL + id + "/reviews?api_key=" + API_KEY;
-    }
 }

@@ -6,6 +6,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/movie_details_ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -66,6 +67,16 @@
                 android:layout_below="@id/movie_score_rb"
                 android:textSize="@dimen/details_date_textsize"
                 tools:text="2008.03.09"/>
+
+            <TextView
+                android:id="@+id/movie_runtime_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/details_date_margin_top"
+                android:layout_toRightOf="@id/movie_image_iv"
+                android:layout_below="@id/movie_date_tv"
+                android:textSize="@dimen/details_date_textsize"
+                tools:text="173分钟"/>
         </RelativeLayout>
 
         <TextView
@@ -73,7 +84,40 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/details_content_margin"
-            android:textSize="@dimen/details_content_textsize" />
+            android:textSize="@dimen/details_content_textsize"
+            tools:text="overview"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/details_content_margin"
+            android:textSize="20sp"
+            android:text="Videos:"
+            />
+        <com.artyhacker.popularmovies.ui.UnScrollListView
+            android:id="@+id/movie_trailers_lv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/details_content_margin"
+
+            ></com.artyhacker.popularmovies.ui.UnScrollListView>
+
+        
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/details_content_margin"
+            android:textSize="20sp"
+            android:text="Reviews:"
+            />
+
+        <ListView
+            android:id="@+id/movie_reviews_lv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/details_content_margin"
+            ></ListView>
     </LinearLayout>
 
 </ScrollView>

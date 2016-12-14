@@ -20,7 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import com.artyhacker.popularmovies.adapter.MovieAdapter;
+import com.artyhacker.popularmovies.adapter.MovieListAdapter;
 import com.artyhacker.popularmovies.bean.MovieBean;
 import com.artyhacker.popularmovies.common.ApiConfig;
 import com.artyhacker.popularmovies.common.MovieContract;
@@ -53,7 +53,7 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
     private ArrayList<MovieBean> movieBeanArray;
     private GridView gridView;
 
-    private MovieAdapter adapter;
+    private MovieListAdapter adapter;
 
     private static final String[] MOVIE_COLUMNS = {
             MovieContract.MovieEntry.COLUMN_ID,
@@ -99,7 +99,7 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         //Loader
         Uri movieForLocationUri = Uri.parse("content://com.artyhacker.popularmovies/movie");
         Cursor cursor = getActivity().getContentResolver().query(movieForLocationUri, null, null, null, null);
-        adapter = new MovieAdapter(getActivity(), cursor, 0, gridView);
+        adapter = new MovieListAdapter(getActivity(), cursor, 0, gridView);
         gridView.setAdapter(adapter);
         return rootView;
     }

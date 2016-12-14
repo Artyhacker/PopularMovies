@@ -78,6 +78,13 @@
                 android:textSize="@dimen/details_content_textsize" />
         </RelativeLayout>
 
+        <TextView
+            android:id="@+id/movie_reviews_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/details_content_margin"
+            android:textSize="@dimen/details_content_textsize"/>
+
 
     </LinearLayout>
 
