@@ -116,7 +116,7 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         switch (id) {
             case R.id.menu_refresh:
                 getMoviesList();
-                getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+                //getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
                 break;
             case R.id.menu_setting:
                 Intent intent = new Intent(getActivity(), SettingActivity.class);
@@ -128,7 +128,6 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
 
     public void onSortTypeChanged(){
         getMoviesList();
-        getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
     }
 
     private void getMoviesList() {
@@ -219,6 +218,12 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
                 movieBeanArray.add(bean);
             }
             new MovieListDaoUtils(getActivity()).saveMovieList(movieBeanArray);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, MovieListFragment.this);
+                }
+            });
         } catch (JSONException e) {
             e.printStackTrace();
         }

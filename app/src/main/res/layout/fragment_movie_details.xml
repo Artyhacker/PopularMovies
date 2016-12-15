@@ -77,6 +77,19 @@
                 android:layout_below="@id/movie_date_tv"
                 android:textSize="@dimen/details_date_textsize"
                 tools:text="173分钟"/>
+
+            <Button
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="15dp"
+                android:layout_toRightOf="@id/movie_image_iv"
+                android:layout_alignParentBottom="true"
+                android:id="@+id/movie_collect_btn"
+                android:background="@drawable/bg_collect_btn"
+                tools:text="Cancel Collect"
+                />
+
         </RelativeLayout>
 
         <TextView
@@ -90,7 +103,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/details_content_margin"
+            android:layout_marginTop="@dimen/details_content_margin"
+            android:layout_marginLeft="@dimen/details_content_margin"
+            android:layout_marginRight="@dimen/details_content_margin"
             android:textSize="20sp"
             android:text="Videos:"
             />
@@ -99,7 +114,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/details_content_margin"
-
             ></com.artyhacker.popularmovies.ui.UnScrollListView>
 
         
@@ -112,12 +126,12 @@
             android:text="Reviews:"
             />
 
-        <ListView
+        <com.artyhacker.popularmovies.ui.UnScrollListView
             android:id="@+id/movie_reviews_lv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/details_content_margin"
-            ></ListView>
+            ></com.artyhacker.popularmovies.ui.UnScrollListView>
     </LinearLayout>
 
 </ScrollView>

@@ -1,34 +1,38 @@
 package com.artyhacker.popularmovies;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.artyhacker.popularmovies.adapter.MovieReviewAdapter;
 import com.artyhacker.popularmovies.adapter.MovieTrailerAdapter;
-import com.artyhacker.popularmovies.adapter.MovieTrailerRecyclerAdapter;
 import com.artyhacker.popularmovies.bean.MovieReview;
 import com.artyhacker.popularmovies.bean.MovieTrailer;
 import com.artyhacker.popularmovies.common.ApiConfig;
 import com.artyhacker.popularmovies.common.MovieContract;
+import com.artyhacker.popularmovies.db.MovieCollectDaoUtils;
+import com.artyhacker.popularmovies.db.MovieCollectOpenHelper;
 import com.artyhacker.popularmovies.ui.UnScrollListView;
 import com.squareup.picasso.Picasso;
 
@@ -55,7 +59,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_details);
+        setContentView(R.layout.fragment_movie_details_container);
     }
 
     public static class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -82,12 +86,15 @@ public class MovieDetailsActivity extends AppCompatActivity {
         private ArrayList<MovieReview> movieReviewsList = new ArrayList<>();
         private String movieRuntime = "";
         private MovieTrailerAdapter trailerAdapter;
-        //private MovieTrailerRecyclerAdapter trailerAdapter;
+        private MovieReviewAdapter reviewAdapter;
+        private MovieCollectOpenHelper collectOpenHelper;
+        private MovieCollectDaoUtils collectDaoUtils;
+        private String id;
 
         private TextView tvRuntime;
         private UnScrollListView lvTrailers;
-        private ListView lvReviews;
-        private RecyclerView rvTrailers;
+        private UnScrollListView lvReviews;
+        private Button btnCollect;
 
         private Handler handler = new Handler(){
             @Override
@@ -96,8 +103,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 tvRuntime.setText(movieRuntime + "分钟");
                 trailerAdapter = new MovieTrailerAdapter(getActivity(), movieTrailerList);
                 lvTrailers.setAdapter(trailerAdapter);
-                //trailerAdapter = new MovieTrailerRecyclerAdapter(getActivity(), movieTrailerList);
-                //rvTrailers.setAdapter(trailerAdapter);
+                reviewAdapter = new MovieReviewAdapter(getActivity(), movieReviewsList);
+                lvReviews.setAdapter(reviewAdapter);
             }
         };
 
@@ -111,9 +118,54 @@ public class MovieDetailsActivity extends AppCompatActivity {
             View view = inflater.inflate(R.layout.fragment_movie_details, container, false);
             tvRuntime = (TextView) view.findViewById(R.id.movie_runtime_tv);
             lvTrailers = (UnScrollListView) view.findViewById(R.id.movie_trailers_lv);
-            lvReviews = (ListView) view.findViewById(R.id.movie_reviews_lv);
-            //rvTrailers = (RecyclerView) view.findViewById(R.id.movie_trailers_rv);
-            //rvTrailers.setLayoutManager(new LinearLayoutManager(getActivity()));
+            lvReviews = (UnScrollListView) view.findViewById(R.id.movie_reviews_lv);
+            btnCollect = (Button) view.findViewById(R.id.movie_collect_btn);
+
+            btnCollect.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (collectDaoUtils.isCollected(id)) {
+                        collectDaoUtils.unCollectMovie(id);
+                        btnCollect.setText("Collect");
+                    } else {
+                        collectDaoUtils.collectMovie(id);
+                        btnCollect.setText("Cancel Collect");
+                    }
+                }
+            });
+
+            lvTrailers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Uri playUri = Uri.parse(ApiConfig.PLAY_VIDEO_BASE_URL + movieTrailerList.get(position).source);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, playUri);
+                    startActivity(intent);
+                }
+            });
+
+            lvReviews.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    //Uri reviewUri = Uri.parse(movieReviewsList.get(position).urlStr);
+                    //Intent intent = new Intent(Intent.ACTION_VIEW, reviewUri);
+                    //startActivity(intent);
+                    View dialogView = View.inflate(getActivity(), R.layout.dialog_review_details, null);
+                    TextView tvDialogContent = (TextView) dialogView.findViewById(R.id.dialog_content_tv);
+                    tvDialogContent.setText(movieReviewsList.get(position).content);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                            .setTitle("Review Details")
+                            .setCancelable(true)
+                            .setView(dialogView)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+                    builder.show();
+                }
+            });
 
             return view;
         }
@@ -121,6 +173,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             getLoaderManager().initLoader(0, null, this);
+            collectOpenHelper = new MovieCollectOpenHelper(getActivity());
+            collectDaoUtils = new MovieCollectDaoUtils(getActivity());
             super.onActivityCreated(savedInstanceState);
         }
 
@@ -138,7 +192,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
             if (!data.moveToFirst()) {
                 return;
             }
-            String idString = data.getString(COL_MOVIE_ID);
+            id = data.getString(COL_MOVIE_ID);
             String titleString = data.getString(COL_MOVIE_TITLE);
             String imageString = data.getString(COL_MOVIE_IMAGE);
             String overviewString = data.getString(COL_MOVIE_OVERVIEW);
@@ -162,10 +216,15 @@ public class MovieDetailsActivity extends AppCompatActivity {
                     .load(ApiConfig.IMAGE_BASE_URL + imageString)
                     .into(movieImage);
 
+            if (collectDaoUtils.isCollected(id)) {
+                btnCollect.setText("Cancel Collect");
+            } else {
+                btnCollect.setText("Collect");
+            }
 
-            Log.d("MovieDetails", "id: " + idString);
+            Log.d("MovieDetails", "id: " + id);
 
-            String movieDetailsUrlStr = ApiConfig.getMovieDetailsUrl(idString);
+            String movieDetailsUrlStr = ApiConfig.getMovieDetailsUrl(id);
             try {
                 URL movieDetailsUrl = new URL(movieDetailsUrlStr);
                 getMovieDetails(movieDetailsUrl);

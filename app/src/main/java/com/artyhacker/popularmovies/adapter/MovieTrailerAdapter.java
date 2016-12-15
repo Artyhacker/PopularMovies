@@ -65,7 +65,7 @@ public class MovieTrailerAdapter extends BaseAdapter {
 
         MovieTrailer trailer = movieTrailerArrayList.get(position);
         holder.tvName.setText(trailer.name);
-        holder.tvType.setText("(" + trailer.type + ")");
+        holder.tvType.setText("[" + trailer.type + "]");
         holder.tvSize.setText(trailer.size);
 
         return convertView;
