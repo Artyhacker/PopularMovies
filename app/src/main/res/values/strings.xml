@@ -91,4 +91,6 @@
     <string name="movie_details_title">电影详情</string>
     <string name="movie_image_description">movie_image</string>
     <string name="MSG_NETWORK_ERROR">网络错误</string>
+    <string name="menu_collect">收藏</string>
+    <string name="menu_all">全部</string>
 </resources>

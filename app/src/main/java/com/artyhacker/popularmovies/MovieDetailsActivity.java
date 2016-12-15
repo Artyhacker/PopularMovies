@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -59,7 +58,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_movie_details_container);
+        setContentView(R.layout.activity_details_container);
     }
 
     public static class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {

@@ -4,7 +4,7 @@
     android:id="@+id/fragment_grid_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:numColumns="3"
+    android:numColumns="2"
     android:background="@color/whiteBackground"
     tools:context="com.artyhacker.popularmovies.MovieListFragment">
 

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp"
+    android:orientation="vertical"
+    android:background="@color/whiteBackground">
+    <ImageView
+        android:id="@+id/item_image_iv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@string/movie_image_description" />
+
+    <TextView
+        android:id="@+id/item_title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="名字"
+        android:ems="1"
+        android:gravity="center_vertical"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+
+
+    <RatingBar
+        android:id="@+id/item_score_rb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:numStars="5"
+        android:rating="4"
+        style="@style/Base.Widget.AppCompat.RatingBar.Small" />
+    <TextView
+        android:id="@+id/item_score_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="5dp"
+        android:text="5.7"
+        android:textColor="#ff0000"
+        android:textSize="15sp"/>
+
+
+</LinearLayout>

@@ -11,7 +11,7 @@ import com.artyhacker.popularmovies.common.MovieContract;
  */
 
 public class MovieListDatabaseOpenHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 1;
 
     public MovieListDatabaseOpenHelper(Context context) {
         super(context, MovieContract.MovieEntry.DATABASE_NAME, null, DATABASE_VERSION);

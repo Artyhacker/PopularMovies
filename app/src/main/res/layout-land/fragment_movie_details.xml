@@ -36,6 +36,17 @@
                 android:layout_marginRight="@dimen/details_image_margin_land"
                 android:scaleType="fitXY"
                 android:contentDescription="@string/movie_image_description"/>
+            <Button
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/movie_image_iv"
+                android:layout_marginLeft="@dimen/details_image_margin_land"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:id="@+id/movie_collect_btn"
+                android:background="@drawable/bg_collect_btn"
+                tools:text="Cancel Collect"
+                />
 
             <RatingBar
                 android:id="@+id/movie_score_rb"
@@ -47,6 +58,16 @@
                 android:numStars="5"
                 android:rating="4"
                 style="@style/Base.Widget.AppCompat.RatingBar.Small"/>
+            <TextView
+                android:id="@+id/movie_score_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/details_score_margintop_land"
+                android:layout_marginLeft="@dimen/details_score_marginleft_land"
+                android:layout_toRightOf="@id/movie_score_rb"
+                android:text="5.7"
+                android:textColor="#ff0000"
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/movie_date_tv"
@@ -59,15 +80,16 @@
                 tools:text="2012.09.12"/>
 
             <TextView
-                android:id="@+id/movie_score_tv"
+                android:id="@+id/movie_runtime_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/details_score_margintop_land"
-                android:layout_marginLeft="@dimen/details_score_marginleft_land"
-                android:layout_toRightOf="@id/movie_score_rb"
-                android:text="5.7"
-                android:textColor="#ff0000"
-                android:textSize="15sp" />
+                android:layout_marginTop="@dimen/details_date_margin_top"
+                android:layout_marginLeft="@dimen/details_date_marginleft_land"
+                android:layout_toRightOf="@id/movie_date_tv"
+                android:textSize="@dimen/details_date_textsize"
+                tools:text="173分钟"/>
+
+
             <TextView
                 android:id="@+id/movie_content_tv"
                 android:layout_width="match_parent"
@@ -79,12 +101,35 @@
         </RelativeLayout>
 
         <TextView
-            android:id="@+id/movie_reviews_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/details_content_margin"
+            android:layout_marginLeft="@dimen/details_content_margin"
+            android:layout_marginRight="@dimen/details_content_margin"
+            android:textSize="20sp"
+            android:text="Videos:"
+            />
+        <com.artyhacker.popularmovies.ui.UnScrollListView
+            android:id="@+id/movie_trailers_lv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/details_content_margin"
-            android:textSize="@dimen/details_content_textsize"/>
+            ></com.artyhacker.popularmovies.ui.UnScrollListView>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/details_content_margin"
+            android:textSize="20sp"
+            android:text="Reviews:"
+            />
+
+        <com.artyhacker.popularmovies.ui.UnScrollListView
+            android:id="@+id/movie_reviews_lv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/details_content_margin"
+            ></com.artyhacker.popularmovies.ui.UnScrollListView>
 
     </LinearLayout>
 

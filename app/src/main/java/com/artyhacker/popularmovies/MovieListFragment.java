@@ -19,11 +19,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
+import com.artyhacker.popularmovies.adapter.MovieCollectAdapter;
 import com.artyhacker.popularmovies.adapter.MovieListAdapter;
 import com.artyhacker.popularmovies.bean.MovieBean;
 import com.artyhacker.popularmovies.common.ApiConfig;
 import com.artyhacker.popularmovies.common.MovieContract;
+import com.artyhacker.popularmovies.db.MovieCollectDaoUtils;
+import com.artyhacker.popularmovies.db.MovieCollectOpenHelper;
 import com.artyhacker.popularmovies.db.MovieListDaoUtils;
 
 import org.json.JSONArray;
@@ -101,6 +105,7 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         Cursor cursor = getActivity().getContentResolver().query(movieForLocationUri, null, null, null, null);
         adapter = new MovieListAdapter(getActivity(), cursor, 0, gridView);
         gridView.setAdapter(adapter);
+        gridView.smoothScrollToPositionFromTop(position, scrollY);
         return rootView;
     }
 
@@ -116,14 +121,38 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         switch (id) {
             case R.id.menu_refresh:
                 getMoviesList();
-                //getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
                 break;
             case R.id.menu_setting:
                 Intent intent = new Intent(getActivity(), SettingActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.menu_collect:
+                onlyCollect();
+                break;
+            case R.id.menu_all:
+                notOnlyCollect();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void notOnlyCollect() {
+        movieBeanArray = new MovieListDaoUtils(getActivity()).getMovieListfromDB();
+        MovieCollectAdapter adapter = new MovieCollectAdapter(getActivity(), movieBeanArray, gridView);
+        gridView.setAdapter(adapter);
+    }
+
+    private void onlyCollect() {
+        MovieCollectDaoUtils movieCollectDaoUtils = new MovieCollectDaoUtils(getActivity());
+        movieBeanArray = new MovieListDaoUtils(getActivity()).getMovieListfromDB();
+        ArrayList<MovieBean> movieCollectArray = new ArrayList<>();
+        for (MovieBean movieBean : movieBeanArray) {
+            String id = String.valueOf(movieBean.id);
+            if (movieCollectDaoUtils.isCollected(id)) {
+                movieCollectArray.add(movieBean);
+            }
+        }
+        MovieCollectAdapter adapter = new MovieCollectAdapter(getActivity(), movieCollectArray, gridView);
+        gridView.setAdapter(adapter);
     }
 
     public void onSortTypeChanged(){
@@ -169,6 +198,12 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), "请检查网络并刷新", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
@@ -181,17 +216,18 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
 
     }
 
+    private static int scrollY = 0;
+    private static int position = 0;
 
     @Override
     public void onItemClick(AdapterView adapterView, View view, int position, long id) {
-
-        Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-        if (cursor != null) {
-            Intent intent = new Intent(getActivity(), MovieDetailsActivity.class);
-            intent.setData(Uri.parse("content://com.artyhacker.popularmovies/movie/" + cursor.getString(COL_MOVIE_ID)));
-            startActivity(intent);
-        }
-
+        scrollY = gridView.getScrollY();
+        position = gridView.getFirstVisiblePosition();
+        movieBeanArray = new MovieListDaoUtils(getActivity()).getMovieListfromDB();
+        String idStr = String.valueOf(movieBeanArray.get(position).id);
+        Intent intent = new Intent(getActivity(), MovieDetailsActivity.class);
+        intent.setData(Uri.parse("content://com.artyhacker.popularmovies/movie/" + idStr));
+        startActivity(intent);
     }
 
     private void getMoviesListFromJson(String moviesJsonStr) {
