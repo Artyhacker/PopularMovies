@@ -105,7 +105,7 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         Cursor cursor = getActivity().getContentResolver().query(movieForLocationUri, null, null, null, null);
         adapter = new MovieListAdapter(getActivity(), cursor, 0, gridView);
         gridView.setAdapter(adapter);
-        gridView.smoothScrollToPositionFromTop(position, scrollY);
+        //gridView.smoothScrollToPositionFromTop(scrollPosition, scrollY);
         return rootView;
     }
 
@@ -216,19 +216,18 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
 
     }
 
-    private static int scrollY = 0;
-    private static int position = 0;
+    //private static int scrollY = 0;
+    //private static int scrollPosition = 0;
 
     @Override
     public void onItemClick(AdapterView adapterView, View view, int position, long id) {
-        scrollY = gridView.getScrollY();
-        position = gridView.getFirstVisiblePosition();
-        movieBeanArray = new MovieListDaoUtils(getActivity()).getMovieListfromDB();
-        String idStr = String.valueOf(movieBeanArray.get(position).id);
+        //scrollY = gridView.getScrollY();
+        //scrollPosition = gridView.getFirstVisiblePosition();
         Intent intent = new Intent(getActivity(), MovieDetailsActivity.class);
-        intent.setData(Uri.parse("content://com.artyhacker.popularmovies/movie/" + idStr));
+        intent.setData(Uri.parse("content://com.artyhacker.popularmovies/movie/" + id));
         startActivity(intent);
     }
+
 
     private void getMoviesListFromJson(String moviesJsonStr) {
         try {

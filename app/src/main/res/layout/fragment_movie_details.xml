@@ -121,7 +121,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/details_content_margin"
+            android:layout_marginTop="@dimen/details_content_margin"
+            android:layout_marginLeft="@dimen/details_content_margin"
+            android:layout_marginRight="@dimen/details_content_margin"
             android:textSize="20sp"
             android:text="Reviews:"
             />

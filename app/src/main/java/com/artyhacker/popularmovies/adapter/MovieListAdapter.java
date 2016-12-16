@@ -31,26 +31,42 @@ public class MovieListAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        ViewHolder holder = new ViewHolder();
         View view = LayoutInflater.from(context).inflate(R.layout.grid_item_movies, parent, false);
         view.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 gridView.getHeight()/2));
+
+        holder.imageView = (ImageView) view.findViewById(R.id.item_image_iv);
+        holder.tvTitle = (TextView) view.findViewById(R.id.item_title_tv);
+        holder.rbScore = (RatingBar)view.findViewById(R.id.item_score_rb);
+        holder.tvScore = (TextView) view.findViewById(R.id.item_score_tv);
+        view.setTag(holder);
         return view;
+    }
+
+    private class ViewHolder{
+        ImageView imageView;
+        TextView tvTitle;
+        RatingBar rbScore;
+        TextView tvScore;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+        ViewHolder holder = (ViewHolder) view.getTag();
 
-        ImageView imageView = (ImageView) view.findViewById(R.id.item_image_iv);
-        TextView tvTitle = (TextView) view.findViewById(R.id.item_title_tv);
-        RatingBar rbScore = (RatingBar) view.findViewById(R.id.item_score_rb);
-        TextView tvScore = (TextView) view.findViewById(R.id.item_score_tv);
-
-        tvTitle.setText(cursor.getString(MovieListFragment.COL_MOVIE_TITLE));
-        tvScore.setText(cursor.getString(MovieListFragment.COL_MOVIE_VOTE_AVERAGE));
+        holder.tvTitle.setText(cursor.getString(MovieListFragment.COL_MOVIE_TITLE));
+        holder.tvScore.setText(cursor.getString(MovieListFragment.COL_MOVIE_VOTE_AVERAGE));
         float score = Float.parseFloat(cursor.getString(MovieListFragment.COL_MOVIE_VOTE_AVERAGE));
-        rbScore.setRating(score/2);
+        holder.rbScore.setRating(score/2);
         String urlStr = cursor.getString(MovieListFragment.COL_MOVIE_IMAGE);
         String imageUrl = ApiConfig.IMAGE_BASE_URL + urlStr;
-        Picasso.with(context).load(imageUrl).into(imageView);
+        Picasso.with(context).load(imageUrl).into(holder.imageView);
     }
+
+    @Override
+    public Object getItem(int position) {
+        return super.getItem(position);
+    }
+
 }
