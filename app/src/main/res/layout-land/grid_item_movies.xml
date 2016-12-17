@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:padding="5dp"
     android:orientation="vertical"
-    android:background="@color/whiteBackground">
+    android:background="@drawable/touch_selector">
     <ImageView
         android:id="@+id/item_image_iv"
         android:layout_width="match_parent"

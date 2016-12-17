@@ -7,4 +7,6 @@
     <color name="movie_details_text">#ffffff</color>
     <color name="blackBackground">#000000</color>
     <color name="whiteBackground">#ffffff</color>
+    <color name="grey">#cccccc</color>
+    <color name="sunshine_light_blue">#ff64c2f4</color>
 </resources>

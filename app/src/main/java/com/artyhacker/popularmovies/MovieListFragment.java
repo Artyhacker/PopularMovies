@@ -27,7 +27,6 @@ import com.artyhacker.popularmovies.bean.MovieBean;
 import com.artyhacker.popularmovies.common.ApiConfig;
 import com.artyhacker.popularmovies.common.MovieContract;
 import com.artyhacker.popularmovies.db.MovieCollectDaoUtils;
-import com.artyhacker.popularmovies.db.MovieCollectOpenHelper;
 import com.artyhacker.popularmovies.db.MovieListDaoUtils;
 
 import org.json.JSONArray;
@@ -51,6 +50,8 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
     private static final int REQUEST_SUCCESS = 1;
     private static final int REQUEST_FAIL = 0;
     private String moviesBaseUrl = "";
+    private int mPosition = GridView.INVALID_POSITION;
+    private static final String SELECTED_KEY = "selected_position";
 
     private static final int MOVIE_LOADER_ID = 0;
 
@@ -106,6 +107,9 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         adapter = new MovieListAdapter(getActivity(), cursor, 0, gridView);
         gridView.setAdapter(adapter);
         //gridView.smoothScrollToPositionFromTop(scrollPosition, scrollY);
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
         return rootView;
     }
 
@@ -218,14 +222,25 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
 
     //private static int scrollY = 0;
     //private static int scrollPosition = 0;
+    public interface mCallback {
+        public void onItemSelect(Uri movieUri);
+    }
 
     @Override
     public void onItemClick(AdapterView adapterView, View view, int position, long id) {
         //scrollY = gridView.getScrollY();
         //scrollPosition = gridView.getFirstVisiblePosition();
-        Intent intent = new Intent(getActivity(), MovieDetailsActivity.class);
-        intent.setData(Uri.parse("content://com.artyhacker.popularmovies/movie/" + id));
-        startActivity(intent);
+        /*
+        Uri detailUri = Uri.parse("content://com.artyhacker.popularmovies/movie/" + id);
+        Intent intent = new Intent(getActivity(), DetailActivity.class);
+        intent.setData(detailUri);
+        startActivity(intent);*/
+        Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+        if (cursor != null) {
+            ((mCallback) getActivity())
+                    .onItemSelect(Uri.parse("content://com.artyhacker.popularmovies/movie/" + id));
+        }
+        mPosition = position;
     }
 
 
@@ -281,6 +296,9 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         adapter.swapCursor(data);
+        if (mPosition != GridView.INVALID_POSITION) {
+            gridView.smoothScrollToPosition(mPosition);
+        }
     }
 
     @Override
@@ -288,4 +306,11 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         adapter.swapCursor(null);
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (mPosition != GridView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
+    }
 }

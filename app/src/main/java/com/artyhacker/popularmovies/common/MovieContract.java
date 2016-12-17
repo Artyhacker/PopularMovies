@@ -26,5 +26,7 @@ public class MovieContract implements BaseColumns {
         public static final String COLUMN_RUNTIME = "runtime";
         public static final String COLUMN_VIDEOS = "videos";
         public static final String COLUME_REVIEWS = "reviews";
+
+
     }
 }

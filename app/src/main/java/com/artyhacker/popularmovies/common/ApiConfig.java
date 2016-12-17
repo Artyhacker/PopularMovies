@@ -1,5 +1,7 @@
 package com.artyhacker.popularmovies.common;
 
+import android.net.Uri;
+
 /**
  * Created by dh on 16-12-9.
  */
@@ -17,8 +19,13 @@ public class ApiConfig {
     public static final String PLAY_VIDEO_BASE_URL = "https://www.youtube.com/watch?v=";
 
     private static final String MOVIE_DETAILS_BASE_URL = "http://api.themoviedb.org/3/movie/";
+
     public static String getMovieDetailsUrl(String id) {
         return MOVIE_DETAILS_BASE_URL + id + "?append_to_response=trailers,reviews&api_key=" + API_KEY;
+    }
+
+    public static String getIdFromUri(Uri uri) {
+        return uri.getPathSegments().get(1);
     }
 
 }
