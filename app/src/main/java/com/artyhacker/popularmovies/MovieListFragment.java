@@ -47,8 +47,6 @@ import okhttp3.Response;
 
 public class MovieListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
 
-    private static final int REQUEST_SUCCESS = 1;
-    private static final int REQUEST_FAIL = 0;
     private String moviesBaseUrl = "";
     private int mPosition = GridView.INVALID_POSITION;
     private static final String SELECTED_KEY = "selected_position";
@@ -105,8 +103,7 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         Uri movieForLocationUri = Uri.parse("content://com.artyhacker.popularmovies/movie");
         Cursor cursor = getActivity().getContentResolver().query(movieForLocationUri, null, null, null, null);
         adapter = new MovieListAdapter(getActivity(), cursor, 0, gridView);
-        gridView.setAdapter(adapter);
-        //gridView.smoothScrollToPositionFromTop(scrollPosition, scrollY);
+        //gridView.setAdapter(adapter);
         if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
             mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
@@ -296,6 +293,7 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         adapter.swapCursor(data);
+        gridView.setAdapter(adapter);
         if (mPosition != GridView.INVALID_POSITION) {
             gridView.smoothScrollToPosition(mPosition);
         }

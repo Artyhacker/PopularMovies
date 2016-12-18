@@ -33,8 +33,8 @@ public class MovieListAdapter extends CursorAdapter {
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         ViewHolder holder = new ViewHolder();
         View view = LayoutInflater.from(context).inflate(R.layout.grid_item_movies, parent, false);
-        view.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                gridView.getHeight()/2));
+        //view.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                //gridView.getHeight()/2));
 
         holder.imageView = (ImageView) view.findViewById(R.id.item_image_iv);
         holder.tvTitle = (TextView) view.findViewById(R.id.item_title_tv);
@@ -61,7 +61,10 @@ public class MovieListAdapter extends CursorAdapter {
         holder.rbScore.setRating(score/2);
         String urlStr = cursor.getString(MovieListFragment.COL_MOVIE_IMAGE);
         String imageUrl = ApiConfig.IMAGE_BASE_URL + urlStr;
-        Picasso.with(context).load(imageUrl).into(holder.imageView);
+        Picasso.with(context)
+                .load(imageUrl)
+                .placeholder(R.drawable.ic_movie)
+                .into(holder.imageView);
     }
 
     @Override

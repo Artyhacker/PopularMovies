@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -95,7 +94,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         @Override
         public void handleMessage(Message msg) {
 
-            if(!DetailActivity.DETAIL_ACITIVTY_FINISHED) {  //avoid NullPoint Error
+            if(!DetailActivity.DETAIL_ACITIVTY_IS_STOP) {  //avoid NullPoint Error
                 //tvRuntime.setText(movieRuntime + "分钟");
                 tvRuntime.setText(getActivity().getString(R.string.format_runtime, movieRuntime));
                 trailerAdapter = new MovieTrailerAdapter(getActivity(), movieTrailerList);

@@ -61,8 +61,8 @@ public class MovieCollectAdapter extends BaseAdapter {
         ViewHolder holder;
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.grid_item_movies, parent, false);
-            convertView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    gridView.getHeight()/2));
+            //convertView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    //gridView.getHeight()/2));
             holder = new ViewHolder();
             holder.imageView = (ImageView) convertView.findViewById(R.id.item_image_iv);
             holder.tvTitle = (TextView) convertView.findViewById(R.id.item_title_tv);
