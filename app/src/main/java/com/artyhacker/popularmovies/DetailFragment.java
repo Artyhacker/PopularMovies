@@ -95,12 +95,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         @Override
         public void handleMessage(Message msg) {
 
-            //tvRuntime.setText(movieRuntime + "分钟");
-            tvRuntime.setText(getActivity().getString(R.string.format_runtime, movieRuntime));
-            trailerAdapter = new MovieTrailerAdapter(getActivity(), movieTrailerList);
-            lvTrailers.setAdapter(trailerAdapter);
-            reviewAdapter = new MovieReviewAdapter(getActivity(), movieReviewsList);
-            lvReviews.setAdapter(reviewAdapter);
+            if(!DetailActivity.DETAIL_ACITIVTY_FINISHED) {  //avoid NullPoint Error
+                //tvRuntime.setText(movieRuntime + "分钟");
+                tvRuntime.setText(getActivity().getString(R.string.format_runtime, movieRuntime));
+                trailerAdapter = new MovieTrailerAdapter(getActivity(), movieTrailerList);
+                lvTrailers.setAdapter(trailerAdapter);
+                reviewAdapter = new MovieReviewAdapter(getActivity(), movieReviewsList);
+                lvReviews.setAdapter(reviewAdapter);
+            }
         }
     };
 

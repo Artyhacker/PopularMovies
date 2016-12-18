@@ -54,11 +54,13 @@ import okhttp3.Response;
  * Created by dh on 16-12-5.
  */
 public class DetailActivity extends AppCompatActivity {
+    public static boolean DETAIL_ACITIVTY_FINISHED;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details_container);
+        DETAIL_ACITIVTY_FINISHED = false;
 
         if (savedInstanceState == null) {
             Bundle arguments = new Bundle();
@@ -70,5 +72,11 @@ public class DetailActivity extends AppCompatActivity {
                     .add(R.id.movie_detail_container, fragment)
                     .commit();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        DETAIL_ACITIVTY_FINISHED = true;
+        super.onStop();
     }
 }
