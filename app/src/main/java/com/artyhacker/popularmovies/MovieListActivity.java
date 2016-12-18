@@ -32,6 +32,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
             }
         } else {
             mTwoPane = false;
+            getSupportActionBar().setElevation(0f);
         }
 
         prefs = PreferenceManager.getDefaultSharedPreferences(mContext);

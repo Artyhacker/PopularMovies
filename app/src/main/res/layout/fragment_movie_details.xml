@@ -18,7 +18,7 @@
             android:id="@+id/movie_title_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/movie_details_title"
+            android:background="@color/movie_dark_blue"
             android:padding="@dimen/details_title_padding_port"
             android:textColor="@color/movie_details_text"
             android:textSize="@dimen/details_title_textsize"
