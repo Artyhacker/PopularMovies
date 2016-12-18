@@ -14,7 +14,7 @@
 
     <style name="ActionBar.Solid.Movie.Notitle" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="displayOptions">useLogo|showHome</item>
-        <item name="logo">@drawable/ic_movie</item>
+        <item name="logo">@drawable/ic_logo</item>
     </style>
 
     <style name="MovieListStyle">
