@@ -80,6 +80,9 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
 
     }
 
+    public interface mCallback {
+        public void onItemSelect(Uri movieUri);
+    }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,8 +92,6 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         movieBeanArray = new ArrayList<MovieBean>();
         getMoviesList();
     }
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -107,64 +108,72 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
             mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
+
         return rootView;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_popularmoviesfragment, menu);
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.menu_refresh:
-                getMoviesList();
-                break;
-            case R.id.menu_setting:
-                Intent intent = new Intent(getActivity(), SettingActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.menu_collect:
-                onlyCollect();
-                break;
-            case R.id.menu_all:
-                notOnlyCollect();
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void notOnlyCollect() {
-        movieBeanArray = new MovieListDaoUtils(getActivity()).getMovieListfromDB();
-        MovieCollectAdapter adapter = new MovieCollectAdapter(getActivity(), movieBeanArray, gridView);
-        gridView.setAdapter(adapter);
-    }
-
-    private void onlyCollect() {
-        MovieCollectDaoUtils movieCollectDaoUtils = new MovieCollectDaoUtils(getActivity());
-        movieBeanArray = new MovieListDaoUtils(getActivity()).getMovieListfromDB();
-        ArrayList<MovieBean> movieCollectArray = new ArrayList<>();
-        for (MovieBean movieBean : movieBeanArray) {
-            String id = String.valueOf(movieBean.id);
-            if (movieCollectDaoUtils.isCollected(id)) {
-                movieCollectArray.add(movieBean);
-            }
-        }
-        MovieCollectAdapter adapter = new MovieCollectAdapter(getActivity(), movieCollectArray, gridView);
-        gridView.setAdapter(adapter);
     }
 
     public void onSortTypeChanged(){
         getMoviesList();
     }
 
+    @Override
+    public void onItemClick(AdapterView adapterView, View view, int position, long id) {
+        //scrollY = gridView.getScrollY();
+        //scrollPosition = gridView.getFirstVisiblePosition();
+        Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+        if (cursor != null) {
+            ((mCallback) getActivity())
+                    .onItemSelect(Uri.parse("content://com.artyhacker.popularmovies/movie/" + id));
+        }
+        mPosition = position;
+    }
+
+
+    /**
+     * Loader
+     */
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri uri = Uri.parse("content://com.artyhacker.popularmovies/movie");
+        CursorLoader loader = new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, null);
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        adapter.swapCursor(data);
+        gridView.setAdapter(adapter);
+        if (mPosition != GridView.INVALID_POSITION) {
+            gridView.smoothScrollToPosition(mPosition);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.swapCursor(null);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (mPosition != GridView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    /**
+     * Fetch Movies Task
+     */
     private void getMoviesList() {
         movieBeanArray = new ArrayList<MovieBean>();
         getMovieListFromNetwork();
     }
-
     private URL getMovieListUrl(){
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -188,13 +197,12 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         }
         return url;
     }
-
     private void getMovieListFromNetwork() {
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                    .url(getMovieListUrl())
-                    .build();
+                .url(getMovieListUrl())
+                .build();
         Call call = client.newCall(request);
         call.enqueue(new Callback() {
             @Override
@@ -216,31 +224,6 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
 
 
     }
-
-    //private static int scrollY = 0;
-    //private static int scrollPosition = 0;
-    public interface mCallback {
-        public void onItemSelect(Uri movieUri);
-    }
-
-    @Override
-    public void onItemClick(AdapterView adapterView, View view, int position, long id) {
-        //scrollY = gridView.getScrollY();
-        //scrollPosition = gridView.getFirstVisiblePosition();
-        /*
-        Uri detailUri = Uri.parse("content://com.artyhacker.popularmovies/movie/" + id);
-        Intent intent = new Intent(getActivity(), DetailActivity.class);
-        intent.setData(detailUri);
-        startActivity(intent);*/
-        Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-        if (cursor != null) {
-            ((mCallback) getActivity())
-                    .onItemSelect(Uri.parse("content://com.artyhacker.popularmovies/movie/" + id));
-        }
-        mPosition = position;
-    }
-
-
     private void getMoviesListFromJson(String moviesJsonStr) {
         try {
             JSONObject object = new JSONObject(moviesJsonStr);
@@ -276,39 +259,55 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         }
     }
 
-
+    /**
+     * Menu
+     * @param menu
+     */
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
-        super.onActivityCreated(savedInstanceState);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_popularmoviesfragment, menu);
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Uri uri = Uri.parse("content://com.artyhacker.popularmovies/movie");
-        CursorLoader loader = new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, null);
-        return loader;
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.menu_refresh:
+                getMoviesList();
+                break;
+            case R.id.menu_setting:
+                Intent intent = new Intent(getActivity(), SettingActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.menu_collect:
+                onlyCollect();
+                break;
+            case R.id.menu_all:
+                notOnlyCollect();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        adapter.swapCursor(data);
+    /**
+     * 收藏功能
+     */
+    private void notOnlyCollect() {
+        movieBeanArray = new MovieListDaoUtils(getActivity()).getMovieListfromDB();
+        MovieCollectAdapter adapter = new MovieCollectAdapter(getActivity(), movieBeanArray, gridView);
         gridView.setAdapter(adapter);
-        if (mPosition != GridView.INVALID_POSITION) {
-            gridView.smoothScrollToPosition(mPosition);
-        }
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        adapter.swapCursor(null);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        if (mPosition != GridView.INVALID_POSITION) {
-            outState.putInt(SELECTED_KEY, mPosition);
+    private void onlyCollect() {
+        MovieCollectDaoUtils movieCollectDaoUtils = new MovieCollectDaoUtils(getActivity());
+        movieBeanArray = new MovieListDaoUtils(getActivity()).getMovieListfromDB();
+        ArrayList<MovieBean> movieCollectArray = new ArrayList<>();
+        for (MovieBean movieBean : movieBeanArray) {
+            String id = String.valueOf(movieBean.id);
+            if (movieCollectDaoUtils.isCollected(id)) {
+                movieCollectArray.add(movieBean);
+            }
         }
-        super.onSaveInstanceState(outState);
+        MovieCollectAdapter adapter = new MovieCollectAdapter(getActivity(), movieCollectArray, gridView);
+        gridView.setAdapter(adapter);
     }
 }

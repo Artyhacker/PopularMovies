@@ -95,7 +95,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         public void handleMessage(Message msg) {
 
             if(!DetailActivity.DETAIL_ACITIVTY_IS_STOP) {  //avoid NullPoint Error
-                //tvRuntime.setText(movieRuntime + "分钟");
                 tvRuntime.setText(getActivity().getString(R.string.format_runtime, movieRuntime));
                 trailerAdapter = new MovieTrailerAdapter(getActivity(), movieTrailerList);
                 lvTrailers.setAdapter(trailerAdapter);
@@ -124,9 +123,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        /*if (container == null) {
-            return null;
-        }*/
         Bundle arguments = getArguments();
         if (arguments != null) {
             mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
@@ -187,6 +183,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         return view;
     }
 
+    /**
+     * Loader
+     */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
@@ -196,11 +195,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        //Intent intent = getActivity().getIntent();
-        //if (intent == null || intent.getData() == null) {
-        //    return null;
-        //}
-        //return new CursorLoader(getActivity(), intent.getData(), MOVIE_COLUMNS, null, null, null);
         if (null != mUri) {
             return new CursorLoader(getActivity(), mUri, MOVIE_COLUMNS, null, null, null);
         }
@@ -257,6 +251,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     }
 
+    /**
+     * FetchMovieDetailTask
+     */
     private void getMovieDetails(URL movieDetailsUrl) {
 
         OkHttpClient client = new OkHttpClient();

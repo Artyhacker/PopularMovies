@@ -72,4 +72,8 @@ public class MovieListAdapter extends CursorAdapter {
         return super.getItem(position);
     }
 
+    @Override
+    public long getItemId(int position) {
+        return super.getItemId(position);
+    }
 }
