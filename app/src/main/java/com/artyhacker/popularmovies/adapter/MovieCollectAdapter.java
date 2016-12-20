@@ -80,7 +80,10 @@ public class MovieCollectAdapter extends BaseAdapter {
         holder.rbScore.setRating(score/2);
         String urlStr = movie.image;
         String imageUrl = ApiConfig.IMAGE_BASE_URL + urlStr;
-        Picasso.with(context).load(imageUrl).into(holder.imageView);
+        Picasso.with(context).load(imageUrl)
+                .placeholder(R.drawable.bg_loading)
+                .error(R.drawable.bg_error)
+                .into(holder.imageView);
 
         return convertView;
     }

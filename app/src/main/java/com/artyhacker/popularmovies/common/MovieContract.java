@@ -10,6 +10,7 @@ import android.provider.BaseColumns;
 public class MovieContract implements BaseColumns {
 
     public static final String CONTENT_AUTHORITY = "com.artyhacker.popularmovies";
+    public static final String CONTENT_BASE_URI = "content://com.artyhacker.popularmovies/movie";
 
     public static final class MovieEntry implements BaseColumns{
 
@@ -23,9 +24,13 @@ public class MovieContract implements BaseColumns {
         public static final String COLUMN_RELASE_DATE = "releaseDate";
         public static final String COLUMN_OVERVIEW = "overview";
 
+        public static final String COLUMN_GET_TYPE = "getType";
+        public static final String GET_TYPE_VALUE_POP = "pop";
+        public static final String GET_TYPE_VALUE_TOP = "top";
+
         public static final String COLUMN_RUNTIME = "runtime";
         public static final String COLUMN_VIDEOS = "videos";
-        public static final String COLUME_REVIEWS = "reviews";
+        public static final String COLUMN_REVIEWS = "reviews";
 
 
     }

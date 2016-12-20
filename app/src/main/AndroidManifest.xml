@@ -37,14 +37,20 @@
                 android:value=".MovieListActivity" />
         </activity>
 
+        <service android:name=".service.MovieService"/>
+        <service android:name=".service.DetailService"/>
+        <receiver android:name=".service.MovieService$AlarmReceiver"/>
+
         <provider
             android:name=".provider.MovieProvider"
             android:authorities="com.artyhacker.popularmovies"
             android:enabled="true"
             android:exported="true"
             android:permission="com.artyhacker.LICENSE_TO_KILL"></provider>
+
+
     </application>
-    
+
     <permission android:name="com.artyhacker.LICENSE_TO_KILL"
         android:protectionLevel="dangerous"
         android:label="Licenced to Kill">

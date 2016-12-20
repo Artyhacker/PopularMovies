@@ -32,6 +32,7 @@ public class MovieProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         int deletedRows = 0;
+        if(null == selection) selection = "1";
         switch (uriMatcher.match(uri)) {
             case MOVIE_DIR:
                 deletedRows = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
@@ -41,7 +42,10 @@ public class MovieProvider extends ContentProvider {
                 deletedRows = db.delete(MovieContract.MovieEntry.TABLE_NAME, "id=?", new String[]{movieId});
                 break;
             default:
-                throw new UnsupportedOperationException("Not yet implemented");
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        if (deletedRows != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
         }
         return deletedRows;
     }
@@ -68,9 +72,38 @@ public class MovieProvider extends ContentProvider {
                 uriReturn = Uri.parse("content://" + MovieContract.CONTENT_AUTHORITY + "/movie/" + newMovieId);
                 break;
             default:
-                throw new UnsupportedOperationException("Not yet implemented");
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+        getContext().getContentResolver().notifyChange(uri, null);
+        db.close();
         return uriReturn;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        final SQLiteDatabase db = dbHelper.getReadableDatabase();
+        final int match = uriMatcher.match(uri);
+        switch (match) {
+            case MOVIE_DIR:
+                db.beginTransaction();
+                int resultCount = 0;
+                try{
+                    //db.delete(MovieContract.MovieEntry.TABLE_NAME, null, null);
+                    for (ContentValues value : values) {
+                        long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            resultCount ++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri,null);
+                return resultCount;
+            default:
+                return super.bulkInsert(uri, values);
+        }
     }
 
     @Override
@@ -94,7 +127,7 @@ public class MovieProvider extends ContentProvider {
                         null, null, sortOrder);
                 break;
             default:
-                throw new UnsupportedOperationException("Not yet implemented");
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         return cursor;
     }
@@ -110,10 +143,13 @@ public class MovieProvider extends ContentProvider {
                 break;
             case MOVIE_ITEM:
                 String movieId = uri.getPathSegments().get(1);
-                updateRows = db.update(MovieContract.MovieEntry.TABLE_NAME, values, "id=?", new String[]{movieId});
+                updateRows = db.update(MovieContract.MovieEntry.TABLE_NAME, values, "_id=?", new String[]{movieId});
                 break;
             default:
                 throw new UnsupportedOperationException("Not yet implemented");
+        }
+        if (updateRows != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
         }
         return updateRows;
     }

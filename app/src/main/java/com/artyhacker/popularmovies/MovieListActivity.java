@@ -1,7 +1,9 @@
 package com.artyhacker.popularmovies;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -9,6 +11,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.artyhacker.popularmovies.service.MovieService;
 
 public class MovieListActivity extends AppCompatActivity implements MovieListFragment.mCallback{
 
@@ -38,7 +42,6 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
 
         prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         mSortType = prefs.getString(getString(R.string.pref_sortType_key), getString(R.string.pref_sortType_default));
-
     }
 
     @Override
@@ -46,9 +49,9 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
         super.onResume();
         String sortType = prefs.getString(getString(R.string.pref_sortType_key), getString(R.string.pref_sortType_default));
         if (sortType != null && !sortType.equals(mSortType)) {
-            MovieListFragment fragment = (MovieListFragment) getFragmentManager().findFragmentById(R.id.fragment_movie_list);
-            if (null != fragment) {
-                fragment.onSortTypeChanged();
+            MovieListFragment movieListFragment = (MovieListFragment) getFragmentManager().findFragmentById(R.id.fragment_movie_list);
+            if (null != movieListFragment) {
+                movieListFragment.onSortTypeChanged();
             }
             mSortType = sortType;
         }

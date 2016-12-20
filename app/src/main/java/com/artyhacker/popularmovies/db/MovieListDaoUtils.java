@@ -32,6 +32,7 @@ public class MovieListDaoUtils {
             values.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, bean.voteAverage);
             values.put(MovieContract.MovieEntry.COLUMN_RELASE_DATE, bean.releaseDate);
             values.put(MovieContract.MovieEntry.COLUMN_POPULARITY, bean.popularity);
+            values.put(MovieContract.MovieEntry.COLUMN_GET_TYPE, bean.getType);
 
             db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
         }
@@ -50,6 +51,7 @@ public class MovieListDaoUtils {
                 double voteAverage = cursor.getDouble(4);
                 String releaseDate = cursor.getString(5);
                 double popularity = cursor.getDouble(6);
+                String getType = cursor.getString(7);
 
                 MovieBean bean = new MovieBean();
                 bean.id = id;
@@ -59,6 +61,7 @@ public class MovieListDaoUtils {
                 bean.voteAverage = voteAverage;
                 bean.releaseDate = releaseDate;
                 bean.popularity = popularity;
+                bean.getType = getType;
 
                 arrayList.add(bean);
             }

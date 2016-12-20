@@ -10,6 +10,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class MovieCollectOpenHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
+    private static final String sql = "CREATE TABLE movieCollect (" +
+            "_id INTEGER NOT NULL, " +
+            "collected Integer NOT NULL " +
+            ");";
 
     public MovieCollectOpenHelper(Context context) {
         super(context, "movieCollect.db", null, DATABASE_VERSION);
@@ -18,10 +22,6 @@ public class MovieCollectOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        String sql = "CREATE TABLE " + "movieCollect" + " (" +
-                "_id" + " INTEGER NOT NULL, " +
-                "collected" + " Integer NOT NULL " +
-                ");";
         db.execSQL(sql);
     }
 

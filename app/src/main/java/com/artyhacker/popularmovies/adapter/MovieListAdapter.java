@@ -22,33 +22,33 @@ import com.squareup.picasso.Picasso;
 
 public class MovieListAdapter extends CursorAdapter {
 
-    private GridView gridView;
+    //private GridView gridView;
 
-    public MovieListAdapter(Context context, Cursor c, int flags, GridView gridView) {
+    public MovieListAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
-        this.gridView = gridView;
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        ViewHolder holder = new ViewHolder();
-        View view = LayoutInflater.from(context).inflate(R.layout.grid_item_movies, parent, false);
-        //view.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                //gridView.getHeight()/2));
 
-        holder.imageView = (ImageView) view.findViewById(R.id.item_image_iv);
-        holder.tvTitle = (TextView) view.findViewById(R.id.item_title_tv);
-        holder.rbScore = (RatingBar)view.findViewById(R.id.item_score_rb);
-        holder.tvScore = (TextView) view.findViewById(R.id.item_score_tv);
+        View view = LayoutInflater.from(context).inflate(R.layout.grid_item_movies, parent, false);
+        ViewHolder holder = new ViewHolder(view);
         view.setTag(holder);
         return view;
     }
 
-    private class ViewHolder{
-        ImageView imageView;
-        TextView tvTitle;
-        RatingBar rbScore;
-        TextView tvScore;
+    public static class ViewHolder{
+        public final ImageView imageView;
+        public final TextView tvTitle;
+        public final RatingBar rbScore;
+        public final TextView tvScore;
+
+        public ViewHolder(View view) {
+            imageView = (ImageView) view.findViewById(R.id.item_image_iv);
+            tvTitle = (TextView) view.findViewById(R.id.item_title_tv);
+            rbScore = (RatingBar)view.findViewById(R.id.item_score_rb);
+            tvScore = (TextView) view.findViewById(R.id.item_score_tv);
+        }
     }
 
     @Override
@@ -63,17 +63,9 @@ public class MovieListAdapter extends CursorAdapter {
         String imageUrl = ApiConfig.IMAGE_BASE_URL + urlStr;
         Picasso.with(context)
                 .load(imageUrl)
-                .placeholder(R.drawable.ic_movie)
+                .placeholder(R.drawable.bg_loading)
+                .error(R.drawable.bg_error)
                 .into(holder.imageView);
     }
 
-    @Override
-    public Object getItem(int position) {
-        return super.getItem(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return super.getItemId(position);
-    }
 }

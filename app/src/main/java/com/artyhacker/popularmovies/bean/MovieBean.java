@@ -15,6 +15,7 @@ public class MovieBean {
     public String releaseDate;
     public double voteAverage;
     public double popularity;
+    public String getType;
 
     public int runtime;
     public String videosJson;

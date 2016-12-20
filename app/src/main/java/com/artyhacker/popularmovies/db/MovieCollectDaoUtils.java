@@ -18,33 +18,38 @@ public class MovieCollectDaoUtils {
     }
 
     public void collectMovie(String id) {
-        SQLiteDatabase db = helper.getReadableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("_id", id);
-        values.put("collected", 1);
-        db.insert("movieCollect", null, values);
+        if(id != null) {
+            SQLiteDatabase db = helper.getReadableDatabase();
+            ContentValues values = new ContentValues();
+            values.put("_id", id);
+            values.put("collected", 1);
+            db.insert("movieCollect", null, values);
 
-        db.close();
+            db.close();
+        }
     }
 
     public void unCollectMovie(String id) {
-        SQLiteDatabase db = helper.getReadableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("collected", 0);
-        db.update("movieCollect", values, "_id=?", new String[]{id});
-        db.close();
+        if(id != null) {
+            SQLiteDatabase db = helper.getReadableDatabase();
+            ContentValues values = new ContentValues();
+            values.put("collected", 0);
+            db.update("movieCollect", values, "_id=?", new String[]{id});
+            db.close();
+        }
     }
 
     public boolean isCollected(String id) {
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from movieCollect", null);
-        if (cursor != null) {
+        if (cursor != null && id != null) {
             while (cursor.moveToNext()) {
                 if (id.equals(cursor.getString(0)) && "1".equals(cursor.getString(1))) {
                     return true;
                 }
             }
         }
+        db.close();
         return false;
     }
 }
