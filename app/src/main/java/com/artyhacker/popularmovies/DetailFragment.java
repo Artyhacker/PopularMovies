@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
@@ -33,8 +34,6 @@ import com.artyhacker.popularmovies.bean.MovieReview;
 import com.artyhacker.popularmovies.bean.MovieTrailer;
 import com.artyhacker.popularmovies.common.ApiConfig;
 import com.artyhacker.popularmovies.common.MovieContract;
-import com.artyhacker.popularmovies.db.MovieCollectDaoUtils;
-import com.artyhacker.popularmovies.db.MovieCollectOpenHelper;
 import com.artyhacker.popularmovies.service.DetailService;
 import com.artyhacker.popularmovies.ui.UnScrollListView;
 import com.squareup.picasso.Picasso;
@@ -58,7 +57,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             MovieContract.MovieEntry.COLUMN_OVERVIEW,
             MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
             MovieContract.MovieEntry.COLUMN_RELASE_DATE,
-            MovieContract.MovieEntry.COLUMN_POPULARITY
+            MovieContract.MovieEntry.COLUMN_POPULARITY,
+            MovieContract.MovieEntry.COLUMN_GET_TYPE,
+            MovieContract.MovieEntry.COLUMN_RUNTIME,
+            MovieContract.MovieEntry.COLUMN_VIDEOS,
+            MovieContract.MovieEntry.COLUMN_REVIEWS
     };
 
     private static final int COL_MOVIE_ID = 0;
@@ -66,17 +69,22 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int COL_MOVIE_IMAGE = 2;
     private static final int COL_MOVIE_OVERVIEW = 3;
     private static final int COL_MOVIE_VOTE_AVERAGE = 4;
-    private static final int COL_MOVIE_RELASE_DATE = 5;
+    private static final int COL_MOVIE_RELEASE_DATE = 5;
     private static final int COL_MOVIE_POPULARITY = 6;
+    private static final int COL_MOVIE_GET_TYPE = 7;
+    private static final int COL_MOVIE_RUNTIME = 8;
+    private static final int COL_MOVIE_VIDEOS = 9;
+    private static final int COL_MOVIE_REVIEWS = 10;
+
 
     private ArrayList<MovieTrailer> movieTrailerList = new ArrayList<>();
     private ArrayList<MovieReview> movieReviewsList = new ArrayList<>();
     private String movieRuntime = "";
     private MovieTrailerAdapter trailerAdapter;
     private MovieReviewAdapter reviewAdapter;
-    private MovieCollectOpenHelper collectOpenHelper;
-    private MovieCollectDaoUtils collectDaoUtils;
-    private String id;
+    private String id = "";
+    private Uri favoriteUri;
+    private Uri contentUri;
 
     public static final String DETAIL_URI = "URI";
     private Uri mUri;
@@ -85,6 +93,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private UnScrollListView lvTrailers;
     private UnScrollListView lvReviews;
     private Button btnCollect;
+    private boolean isFavorite;
+    private ContentResolver resolver;
 
     private Handler handler = new Handler(){
         @Override
@@ -145,9 +155,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         lvReviews.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Uri reviewUri = Uri.parse(movieReviewsList.get(position).urlStr);
-                //Intent intent = new Intent(Intent.ACTION_VIEW, reviewUri);
-                //startActivity(intent);
                 View dialogView = View.inflate(getActivity(), R.layout.dialog_review_details, null);
                 TextView tvDialogContent = (TextView) dialogView.findViewById(R.id.dialog_content_tv);
                 tvDialogContent.setText(movieReviewsList.get(position).content);
@@ -175,8 +182,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-        collectOpenHelper = new MovieCollectOpenHelper(getActivity());
-        collectDaoUtils = new MovieCollectDaoUtils(getActivity());
+
+        resolver = getActivity().getContentResolver();
 
         detailMsgReceiver = new DetailMsgReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -207,7 +214,17 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (!data.moveToFirst()) {
             return;
         }
+
         id = data.getString(COL_MOVIE_ID);
+        contentUri = Uri.parse(MovieContract.CONTENT_BASE_URI + "/" + id);
+        favoriteUri = Uri.parse(MovieContract.CONTENT_FAVORITE_BASE_URI + "/" + id);
+        isFavorite = isFavorite(id);
+        Log.d("DetailFragment", "isFavorite? " + isFavorite);
+        if (isFavorite) {
+            btnCollect.setText("Cancel Collect");
+        } else {
+            btnCollect.setText("Collect");
+        }
 
         /**
          * start DetailService
@@ -220,7 +237,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         String imageString = data.getString(COL_MOVIE_IMAGE);
         String overviewString = data.getString(COL_MOVIE_OVERVIEW);
         String voteString = data.getString(COL_MOVIE_VOTE_AVERAGE);
-        String dateString = data.getString(COL_MOVIE_RELASE_DATE);
+        String dateString = data.getString(COL_MOVIE_RELEASE_DATE);
         String popularString = data.getString(COL_MOVIE_POPULARITY);
 
         ImageView movieImage = (ImageView) getView().findViewById(R.id.movie_image_iv);
@@ -241,85 +258,18 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 .error(R.drawable.bg_error)
                 .into(movieImage);
 
-        if (collectDaoUtils.isCollected(id)) {
-            btnCollect.setText("Cancel Collect");
-        } else {
-            btnCollect.setText("Collect");
-        }
+
+
 
         Log.d("MovieDetails", "id: " + id);
 
-        /*
-        String movieDetailsUrlStr = ApiConfig.getMovieDetailsUrl(id);
-        try {
-            URL movieDetailsUrl = new URL(movieDetailsUrlStr);
-            getMovieDetails(movieDetailsUrl);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }*/
     }
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
     }
 
-    /**
-     * FetchMovieDetailTask
-     */
-    /*
-    private void getMovieDetails(URL movieDetailsUrl) {
 
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(movieDetailsUrl)
-                .build();
-        Call call = client.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseJson = response.body().string();
-                parseMovieDetailsJson(responseJson);
-            }
-        });
-    }*/
-/*
-    private void parseMovieDetailsJson(String responseJson) {
-
-        try {
-            JSONObject object = new JSONObject(responseJson);
-            movieRuntime = object.getString("runtime");
-
-            JSONArray movieTrailers = object.getJSONObject("trailers").getJSONArray("youtube");
-            for(int i = 0; i < movieTrailers.length(); i++) {
-                MovieTrailer trailer = new MovieTrailer();
-                JSONObject trailerJson = movieTrailers.getJSONObject(i);
-                trailer.name = trailerJson.getString("name");
-                trailer.size = trailerJson.getString("size");
-                trailer.source = trailerJson.getString("source");
-                trailer.type = trailerJson.getString("type");
-                movieTrailerList.add(trailer);
-            }
-
-            JSONArray movieReviews = object.getJSONObject("reviews").getJSONArray("results");
-            for(int j = 0; j < movieReviews.length(); j++) {
-                JSONObject reviewJson = movieReviews.getJSONObject(j);
-                MovieReview review = new MovieReview();
-                review.author = reviewJson.getString("author");
-                review.content = reviewJson.getString("content");
-                review.urlStr = reviewJson.getString("url");
-                movieReviewsList.add(review);
-            }
-
-            handler.sendEmptyMessage(0);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }*/
 
 
     /**
@@ -328,15 +278,17 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.movie_collect_btn) {
-            if (collectDaoUtils.isCollected(id)) {
-                collectDaoUtils.unCollectMovie(id);
+            if (isFavorite) {
+                resolver.delete(favoriteUri, null, null);
                 btnCollect.setText("Collect");
             } else {
-                collectDaoUtils.collectMovie(id);
+                insertFavorite(resolver, contentUri, favoriteUri);
                 btnCollect.setText("Cancel Collect");
             }
         }
     }
+
+
 
     public class DetailMsgReceiver extends BroadcastReceiver {
         @Override
@@ -394,4 +346,35 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
 
+    public boolean isFavorite(String id) {
+        Uri uri = Uri.parse(MovieContract.CONTENT_FAVORITE_BASE_URI + "/" + id);
+        Cursor cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
+        Log.d("DetailFragment", "cursor count: " + cursor.getCount());
+        return (cursor.getCount() != 0);
+    }
+
+    private void insertFavorite(final ContentResolver resolver, final Uri contentUri, final Uri favoriteUri) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Cursor cursor = resolver.query(contentUri, null, null, null, null);
+                if (cursor != null) {
+                    cursor.moveToFirst();
+                    ContentValues values = new ContentValues();
+                    values.put(MOVIE_COLUMNS[0], cursor.getString(COL_MOVIE_ID));
+                    values.put(MOVIE_COLUMNS[1], cursor.getString(COL_MOVIE_TITLE));
+                    values.put(MOVIE_COLUMNS[2], cursor.getString(COL_MOVIE_IMAGE));
+                    values.put(MOVIE_COLUMNS[3], cursor.getString(COL_MOVIE_OVERVIEW));
+                    values.put(MOVIE_COLUMNS[4], cursor.getString(COL_MOVIE_VOTE_AVERAGE));
+                    values.put(MOVIE_COLUMNS[5], cursor.getString(COL_MOVIE_RELEASE_DATE));
+                    values.put(MOVIE_COLUMNS[6], cursor.getString(COL_MOVIE_POPULARITY));
+                    values.put(MOVIE_COLUMNS[7], cursor.getString(COL_MOVIE_GET_TYPE));
+                    values.put(MOVIE_COLUMNS[8], cursor.getString(COL_MOVIE_RUNTIME));
+                    values.put(MOVIE_COLUMNS[9], cursor.getString(COL_MOVIE_VIDEOS));
+                    values.put(MOVIE_COLUMNS[10],cursor.getString(COL_MOVIE_REVIEWS));
+                    resolver.insert(favoriteUri, values);
+                }
+            }
+        }).start();
+    }
 }

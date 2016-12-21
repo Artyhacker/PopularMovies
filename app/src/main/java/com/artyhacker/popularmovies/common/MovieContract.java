@@ -1,5 +1,6 @@
 package com.artyhacker.popularmovies.common;
 
+import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -11,11 +12,13 @@ public class MovieContract implements BaseColumns {
 
     public static final String CONTENT_AUTHORITY = "com.artyhacker.popularmovies";
     public static final String CONTENT_BASE_URI = "content://com.artyhacker.popularmovies/movie";
+    public static final String CONTENT_FAVORITE_BASE_URI = "content://com.artyhacker.popularmovies/favorite";
 
     public static final class MovieEntry implements BaseColumns{
 
         public static final String DATABASE_NAME = "movie.db";
         public static final String TABLE_NAME = "movieList";
+        public static final String TABLE_NAME_FAVORITE = "favorite";
         public static final String COLUMN_ID = "_id";
         public static final String COLUME_TITLE = "title";
         public static final String COLUME_IMAGE = "image";
@@ -31,7 +34,6 @@ public class MovieContract implements BaseColumns {
         public static final String COLUMN_RUNTIME = "runtime";
         public static final String COLUMN_VIDEOS = "videos";
         public static final String COLUMN_REVIEWS = "reviews";
-
 
     }
 }

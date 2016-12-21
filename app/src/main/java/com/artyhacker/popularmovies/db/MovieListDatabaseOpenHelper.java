@@ -34,6 +34,21 @@ public class MovieListDatabaseOpenHelper extends SQLiteOpenHelper {
                 MovieContract.MovieEntry.COLUMN_REVIEWS + " TEXT " +
                 ");";
         db.execSQL(sql);
+
+        String sql1 = "CREATE TABLE " + MovieContract.MovieEntry.TABLE_NAME_FAVORITE + " (" +
+                MovieContract.MovieEntry.COLUMN_ID + " INTEGER NOT NULL, " +
+                MovieContract.MovieEntry.COLUME_TITLE + " TEXT NOT NULL, " +
+                MovieContract.MovieEntry.COLUME_IMAGE + " TEXT NOT NULL, " +
+                MovieContract.MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
+                MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " REAL NOT NULL, " +
+                MovieContract.MovieEntry.COLUMN_RELASE_DATE + " TEXT NOT NULL, " +
+                MovieContract.MovieEntry.COLUMN_POPULARITY + " REAL NOT NULL, " +
+                MovieContract.MovieEntry.COLUMN_GET_TYPE + " TEXT NOT NULL, " +
+                MovieContract.MovieEntry.COLUMN_RUNTIME + " INTEGER, " +
+                MovieContract.MovieEntry.COLUMN_VIDEOS + " TEXT, " +
+                MovieContract.MovieEntry.COLUMN_REVIEWS + " TEXT " +
+                ");";
+        db.execSQL(sql1);
     }
 
     @Override
