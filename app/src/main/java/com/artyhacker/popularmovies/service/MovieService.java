@@ -7,7 +7,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.artyhacker.popularmovies.bean.MovieBean;
 import com.artyhacker.popularmovies.common.ApiConfig;
@@ -74,6 +77,17 @@ public class MovieService extends IntentService {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "请确认网络并刷新", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                Intent intent = new Intent("com.artyhacker.popularmovies.LOAD_FINISHED");
+                intent.putExtra(LOAD_FINISHED_FLAG, true);
+                intent.putExtra(MOVIE_TYPE_FLAG, movieType);
+                sendBroadcast(intent);
             }
 
             @Override

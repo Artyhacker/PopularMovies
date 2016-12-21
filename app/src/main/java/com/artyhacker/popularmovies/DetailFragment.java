@@ -92,7 +92,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView tvRuntime;
     private UnScrollListView lvTrailers;
     private UnScrollListView lvReviews;
-    private Button btnCollect;
+    private Button btnFavorite;
     private boolean isFavorite;
     private ContentResolver resolver;
 
@@ -100,8 +100,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         @Override
         public void handleMessage(Message msg) {
 
-            if(!DetailActivity.DETAIL_ACITIVTY_IS_STOP) {  //avoid NullPoint Error
-                tvRuntime.setText(getActivity().getString(R.string.format_runtime, movieRuntime));
+            if(!DetailActivity.DETAIL_ACITIVTY_IS_STOP) {
+                if (null != movieRuntime) {
+                    tvRuntime.setText(getActivity().getString(R.string.format_runtime, movieRuntime));
+                }
                 trailerAdapter = new MovieTrailerAdapter(getActivity(), movieTrailerList);
                 lvTrailers.setAdapter(trailerAdapter);
                 reviewAdapter = new MovieReviewAdapter(getActivity(), movieReviewsList);
@@ -109,18 +111,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             }
         }
     };
-
-    public static DetailFragment newInstance(int index) {
-        DetailFragment f = new DetailFragment();
-        Bundle args = new Bundle();
-        args.putInt("index", index);
-        f.setArguments(args);
-        return f;
-    }
-
-    public int getShownIndex() {
-        return getArguments().getInt("index", 0);
-    }
 
     public DetailFragment(){
         setHasOptionsMenu(true);
@@ -138,9 +128,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         tvRuntime = (TextView) view.findViewById(R.id.movie_runtime_tv);
         lvTrailers = (UnScrollListView) view.findViewById(R.id.movie_trailers_lv);
         lvReviews = (UnScrollListView) view.findViewById(R.id.movie_reviews_lv);
-        btnCollect = (Button) view.findViewById(R.id.movie_collect_btn);
+        btnFavorite = (Button) view.findViewById(R.id.movie_collect_btn);
 
-        btnCollect.setOnClickListener(this);
+        btnFavorite.setOnClickListener(this);
 
 
         lvTrailers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -221,9 +211,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         isFavorite = isFavorite(id);
         Log.d("DetailFragment", "isFavorite? " + isFavorite);
         if (isFavorite) {
-            btnCollect.setText("Cancel Collect");
+            btnFavorite.setText(R.string.btn_text_unfavorite);
         } else {
-            btnCollect.setText("Collect");
+            btnFavorite.setText(R.string.btn_text_favorite);
         }
 
         /**
@@ -280,10 +270,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (v.getId() == R.id.movie_collect_btn) {
             if (isFavorite) {
                 resolver.delete(favoriteUri, null, null);
-                btnCollect.setText("Collect");
+                btnFavorite.setText(R.string.btn_text_favorite);
             } else {
                 insertFavorite(resolver, contentUri, favoriteUri);
-                btnCollect.setText("Cancel Collect");
+                btnFavorite.setText(R.string.btn_text_unfavorite);
             }
         }
     }
@@ -315,25 +305,29 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                     String reviewsStr = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_REVIEWS));
 
                     try {
-                        JSONArray videosJson = new JSONArray(videosStr);
-                        for(int i = 0; i < videosJson.length(); i++) {
-                            MovieTrailer trailer = new MovieTrailer();
-                            JSONObject trailerJson = videosJson.getJSONObject(i);
-                            trailer.name = trailerJson.getString("name");
-                            trailer.size = trailerJson.getString("size");
-                            trailer.source = trailerJson.getString("source");
-                            trailer.type = trailerJson.getString("type");
-                            movieTrailerList.add(trailer);
+                        if(null != videosStr) {
+                            JSONArray videosJson = new JSONArray(videosStr);
+                            for (int i = 0; i < videosJson.length(); i++) {
+                                MovieTrailer trailer = new MovieTrailer();
+                                JSONObject trailerJson = videosJson.getJSONObject(i);
+                                trailer.name = trailerJson.getString("name");
+                                trailer.size = trailerJson.getString("size");
+                                trailer.source = trailerJson.getString("source");
+                                trailer.type = trailerJson.getString("type");
+                                movieTrailerList.add(trailer);
+                            }
                         }
 
-                        JSONArray reviewsJson = new JSONArray(reviewsStr);
-                        for(int j = 0; j < reviewsJson.length(); j++) {
-                            JSONObject reviewJson = reviewsJson.getJSONObject(j);
-                            MovieReview review = new MovieReview();
-                            review.author = reviewJson.getString("author");
-                            review.content = reviewJson.getString("content");
-                            review.urlStr = reviewJson.getString("url");
-                            movieReviewsList.add(review);
+                        if(null != reviewsStr) {
+                            JSONArray reviewsJson = new JSONArray(reviewsStr);
+                            for (int j = 0; j < reviewsJson.length(); j++) {
+                                JSONObject reviewJson = reviewsJson.getJSONObject(j);
+                                MovieReview review = new MovieReview();
+                                review.author = reviewJson.getString("author");
+                                review.content = reviewJson.getString("content");
+                                review.urlStr = reviewJson.getString("url");
+                                movieReviewsList.add(review);
+                            }
                         }
 
                         handler.sendEmptyMessage(0);

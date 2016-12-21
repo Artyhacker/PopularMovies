@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.artyhacker.popularmovies.service.MovieService;
 
@@ -42,6 +43,8 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
 
         prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         mSortType = prefs.getString(getString(R.string.pref_sortType_key), getString(R.string.pref_sortType_default));
+
+        Toast.makeText(mContext, "请在右上角点击刷新",Toast.LENGTH_SHORT).show();
     }
 
     @Override

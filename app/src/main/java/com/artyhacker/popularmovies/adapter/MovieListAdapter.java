@@ -22,8 +22,6 @@ import com.squareup.picasso.Picasso;
 
 public class MovieListAdapter extends CursorAdapter {
 
-    //private GridView gridView;
-
     public MovieListAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
     }
