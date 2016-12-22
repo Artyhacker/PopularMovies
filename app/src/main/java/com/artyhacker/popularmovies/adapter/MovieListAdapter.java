@@ -21,9 +21,11 @@ import com.squareup.picasso.Picasso;
  */
 
 public class MovieListAdapter extends CursorAdapter {
+    private Cursor cursor;
 
     public MovieListAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
+        cursor = c;
     }
 
     @Override

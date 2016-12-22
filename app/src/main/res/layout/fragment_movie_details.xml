@@ -22,7 +22,8 @@
             android:padding="@dimen/details_title_padding_port"
             android:textColor="@color/movie_details_text"
             android:textSize="@dimen/details_title_textsize"
-            tools:text="Title"/>
+            tools:text="Title"
+            android:visibility="invisible"/>
 
 
         <RelativeLayout
@@ -46,7 +47,7 @@
                 android:layout_toRightOf="@id/movie_image_iv"
                 android:layout_marginTop="20dp"
                 android:numStars="5"
-                android:rating="4"
+                android:visibility="invisible"
                 style="@style/Base.Widget.AppCompat.RatingBar.Small"/>
             <TextView
                 android:id="@+id/movie_score_tv"
@@ -55,7 +56,7 @@
                 android:layout_toRightOf="@id/movie_score_rb"
                 android:layout_marginTop="20dp"
                 android:layout_marginLeft="5dp"
-                android:text="5.7"
+                tools:text="5.7"
                 android:textColor="#ff0000"
                 android:textSize="15sp"/>
 
@@ -89,6 +90,7 @@
                 android:id="@+id/movie_collect_btn"
                 android:background="@drawable/bg_collect_btn"
                 tools:text="Cancel Collect"
+                android:visibility="invisible"
                 />
 
         </RelativeLayout>
@@ -99,7 +101,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/details_content_margin"
             android:textSize="@dimen/details_content_textsize"
-            tools:text="overview"/>
+            tools:text="overview"
+            />
 
         <TextView
             android:layout_width="match_parent"
@@ -109,6 +112,8 @@
             android:layout_marginRight="@dimen/details_content_margin"
             android:textSize="20sp"
             android:text="Videos:"
+            android:visibility="invisible"
+            android:id="@+id/videos_des_tv"
             />
         <com.artyhacker.popularmovies.ui.UnScrollListView
             android:id="@+id/movie_trailers_lv"
@@ -127,6 +132,8 @@
             android:layout_marginRight="@dimen/details_content_margin"
             android:textSize="20sp"
             android:text="Reviews:"
+            android:visibility="invisible"
+            android:id="@+id/reviews_des_tv"
             />
 
         <com.artyhacker.popularmovies.ui.UnScrollListView
