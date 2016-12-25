@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 /**
  * Created by dh on 16-12-5.
  */
-public class DetailActivity extends AppCompatActivity {
+public class  DetailActivity extends AppCompatActivity {
     public static boolean DETAIL_ACITIVTY_IS_STOP;
 
     @Override

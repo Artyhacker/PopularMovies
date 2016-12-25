@@ -2,7 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.artyhacker.popularmovies">
 
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
 
     <application
         android:allowBackup="true"
@@ -45,16 +49,31 @@
             android:name=".provider.MovieProvider"
             android:authorities="com.artyhacker.popularmovies"
             android:enabled="true"
-            android:exported="true"
-            android:permission="com.artyhacker.LICENSE_TO_KILL"></provider>
+            android:exported="false"
+            android:syncable="true"/>
 
+
+        <!-- sync -->
+        <service android:name=".sync.MovieAuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+
+        <service android:name=".sync.MovieSyncService"
+            android:exported="true"
+            android:process=":sync">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
+        </service>
 
     </application>
-
-    <permission android:name="com.artyhacker.LICENSE_TO_KILL"
-        android:protectionLevel="dangerous"
-        android:label="Licenced to Kill">
-
-    </permission>
 
 </manifest>

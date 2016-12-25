@@ -3,10 +3,10 @@
     <string name="menu_setting">设置</string>
     <string name="menu_refresh">刷新</string>
     <string name="title_activity_setting">设置中心</string>
+
     <string name="pref_sortType">排序方式</string>
     <string name="pref_sortType_default">0</string>
     <string name="pref_sortType_key">pref_sortType_key</string>
-
     <string-array name="pref_sortType_entries">
         <item>按热度排序</item>
         <item>按评分排序</item>
@@ -15,6 +15,30 @@
         <item>0</item>
         <item>1</item>
     </string-array>
+
+
+    <string name="pref_pollFrequency">同步频率</string>
+    <string name="pref_pollFrequency_default">24</string>
+    <string name="pref_pollFrequency_key">pref_pollFrequency_key</string>
+    <string-array name="pref_pollFrequency_entries">
+        <item>每1小时</item>
+        <item>每6小时</item>
+        <item>每12小时</item>
+        <item>每1天</item>
+        <item>每3天</item>
+        <item>每7天</item>
+        <item>仅手动同步(不推荐)</item>
+    </string-array>
+    <string-array name="pref_pollFrequency_values">
+        <item>1</item>
+        <item>6</item>
+        <item>12</item>
+        <item>24</item>
+        <item>72</item>
+        <item>168</item>
+        <item>1000</item>
+    </string-array>
+
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
@@ -95,4 +119,6 @@
     <string name="menu_all">全部</string>
 
     <string name="format_runtime"><xliff:g id="runtime">%s</xliff:g>分钟</string>
+    <string name="btn_text_favorite">收藏</string>
+    <string name="btn_text_unfavorite">取消收藏</string>
 </resources>

@@ -1,27 +1,38 @@
 package com.artyhacker.popularmovies;
 
-import android.content.BroadcastReceiver;
+import android.Manifest;
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SyncRequest;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
-import com.artyhacker.popularmovies.service.MovieService;
+import com.artyhacker.popularmovies.common.MovieContract;
 
-public class MovieListActivity extends AppCompatActivity implements MovieListFragment.mCallback{
+
+public class MovieListActivity extends AppCompatActivity implements MovieListFragment.mCallback {
 
     private Context mContext;
     private String mSortType;
     private SharedPreferences prefs;
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
+    private static long pollFrequency = 1;
+
+    public static Account mAccount;
 
     public static boolean mTwoPane;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,11 +53,32 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
 
         prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         mSortType = prefs.getString(getString(R.string.pref_sortType_key), getString(R.string.pref_sortType_default));
+
+        //Toast.makeText(mContext, "请在右上角点击刷新",Toast.LENGTH_SHORT).show();
+
+        /**
+         * add Account
+         */
+        mAccount = createSyncAccount(this);
+
+    }
+
+    private Account createSyncAccount(Context context) {
+        Account newAccount = new Account(context.getString(R.string.app_name), "artyhacker.com");
+        AccountManager accountManager = (AccountManager) context.getSystemService(ACCOUNT_SERVICE);
+        if (!accountManager.addAccountExplicitly(newAccount, null, null)) {
+            return null;
+        }
+        return newAccount;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        /**
+         * load MovieList is Popular or TopRates
+         */
         String sortType = prefs.getString(getString(R.string.pref_sortType_key), getString(R.string.pref_sortType_default));
         if (sortType != null && !sortType.equals(mSortType)) {
             MovieListFragment movieListFragment = (MovieListFragment) getFragmentManager().findFragmentById(R.id.fragment_movie_list);
@@ -55,6 +87,38 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
             }
             mSortType = sortType;
         }
+
+        /**
+         * load Poll Frequency
+         */
+        pollFrequency = Long.parseLong(prefs.getString(getString(R.string.pref_pollFrequency_key),
+                getString(R.string.pref_pollFrequency_default)));
+        long pollFrequencyWithSecond = 60*60*pollFrequency;
+        AccountManager accountManager = (AccountManager) getSystemService(ACCOUNT_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(mContext, "设置自动同步需添加账户权限！", Toast.LENGTH_LONG).show();
+            return;
+        }
+        Account account = accountManager.getAccountsByType("artyhacker.com")[0];
+
+        if (pollFrequency == 1000) {
+            ContentResolver.cancelSync(account, MovieContract.CONTENT_AUTHORITY);
+            Log.d("MovieListActivity", "同步频率： 取消自动同步！");
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            SyncRequest request = new SyncRequest.Builder()
+                    .syncPeriodic(pollFrequencyWithSecond, pollFrequencyWithSecond / 3)
+                    .setSyncAdapter(account, MovieContract.CONTENT_AUTHORITY)
+                    .setExtras(Bundle.EMPTY).build();
+            ContentResolver.requestSync(request);
+        } else {
+            ContentResolver.addPeriodicSync(account, MovieContract.CONTENT_AUTHORITY, Bundle.EMPTY,
+                    pollFrequencyWithSecond);
+        }
+        ContentResolver.setSyncAutomatically(account, MovieContract.CONTENT_AUTHORITY, true);
+        Log.d("MovieListActivity", "同步频率： " + pollFrequency + " 小时");
     }
 
     @Override

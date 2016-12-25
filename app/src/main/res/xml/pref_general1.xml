@@ -11,4 +11,13 @@
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"/>
 
+    <ListPreference
+        android:key="@string/pref_pollFrequency_key"
+        android:title="@string/pref_pollFrequency"
+        android:defaultValue="@string/pref_pollFrequency_default"
+        android:negativeButtonText="取消"
+        android:positiveButtonText="确定"
+        android:entries="@array/pref_pollFrequency_entries"
+        android:entryValues="@array/pref_pollFrequency_values" />
+
 </PreferenceScreen>

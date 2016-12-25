@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.app.LoaderManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -26,8 +27,9 @@ import android.widget.GridView;
 
 import com.artyhacker.popularmovies.adapter.MovieListAdapter;
 import com.artyhacker.popularmovies.bean.MovieBean;
+import com.artyhacker.popularmovies.common.ApiConfig;
 import com.artyhacker.popularmovies.common.MovieContract;
-import com.artyhacker.popularmovies.service.MovieService;
+import com.artyhacker.popularmovies.sync.MovieSyncAdapter;
 
 import java.util.ArrayList;
 
@@ -99,10 +101,14 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
             mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
-
+        getMovieListInLocal();
         return rootView;
     }
 
+    private void getMovieListInLocal() {
+        movieType = ApiConfig.getMovieType(getActivity());
+        getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+    }
 
 
     @Override
@@ -120,11 +126,19 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         /**
          * start MovieService
          */
+        /*
         Intent alarmIntent = new Intent(getActivity(), MovieService.AlarmReceiver.class);
         alarmIntent.putExtra(MovieService.GET_MOVIE_URL_EXTRA, MovieContract.CONTENT_BASE_URI);
         PendingIntent pi = PendingIntent.getBroadcast(getActivity(), 0, alarmIntent, PendingIntent.FLAG_ONE_SHOT);
         AlarmManager am = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
         am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 1000, pi);
+        */
+
+        /*requestSync*/
+        Bundle settingsBundle = new Bundle();
+        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.requestSync(MovieListActivity.mAccount, MovieContract.CONTENT_AUTHORITY, settingsBundle);
 
     }
 
@@ -182,8 +196,8 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
     public class MsgReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            boolean loadFinishedFlag = intent.getBooleanExtra(MovieService.LOAD_FINISHED_FLAG, false);
-            movieType = intent.getStringExtra(MovieService.MOVIE_TYPE_FLAG);
+            boolean loadFinishedFlag = intent.getBooleanExtra(MovieSyncAdapter.LOAD_FINISHED_FLAG, false);
+            movieType = intent.getStringExtra(MovieSyncAdapter.MOVIE_TYPE_FLAG);
             Log.d("MovieListFragment", "receive broadcast! loadFinished: " + loadFinishedFlag);
             if (loadFinishedFlag) {
                 getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, MovieListFragment.this);
@@ -205,6 +219,8 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         int id = item.getItemId();
         switch (id) {
             case R.id.menu_refresh:
+
+
                 getMoviesList();
                 break;
             case R.id.menu_setting:

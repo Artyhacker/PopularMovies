@@ -4,7 +4,10 @@ import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.artyhacker.popularmovies.bean.MovieReview;
 import com.artyhacker.popularmovies.bean.MovieTrailer;
@@ -64,6 +67,16 @@ public class DetailService extends IntentService {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "请确认网络并刷新", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                Intent intent = new Intent("com.artyhacker.popularmovies.DETAIL_LOAD_FINISHED");
+                intent.putExtra(MOVIE_ID_EXTRA, id);
+                sendBroadcast(intent);
             }
 
             @Override
