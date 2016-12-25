@@ -78,6 +78,17 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(mContext, "请确认网络并刷新", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                Intent intent = new Intent("com.artyhacker.popularmovies.LOAD_FINISHED");
+                intent.putExtra(LOAD_FINISHED_FLAG, true);
+                intent.putExtra(MOVIE_TYPE_FLAG, movieType);
+                mContext.sendBroadcast(intent);
             }
 
             @Override
