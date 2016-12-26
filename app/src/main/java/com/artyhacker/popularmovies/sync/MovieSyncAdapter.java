@@ -109,7 +109,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
             SharedPreferences sp = context.getSharedPreferences(NOTIFY_SP_NAME, Context.MODE_PRIVATE);
             String lastId = sp.getString(LAST_ID_KEY, newId);
-            if (lastId.equals(newId)) {  //应该为不等于，此处仅用于测试通知功能
+            if (!lastId.equals(newId)) {  //应该为不等于，此处仅用于测试通知功能
                 sp.edit().putString(LAST_ID_KEY, newId).apply();
                 notifyMovie(context, newId, title);
             }
