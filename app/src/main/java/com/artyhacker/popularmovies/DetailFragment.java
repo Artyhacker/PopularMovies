@@ -3,14 +3,12 @@ package com.artyhacker.popularmovies;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.LoaderManager;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -34,7 +32,6 @@ import com.artyhacker.popularmovies.bean.MovieReview;
 import com.artyhacker.popularmovies.bean.MovieTrailer;
 import com.artyhacker.popularmovies.common.ApiConfig;
 import com.artyhacker.popularmovies.common.MovieContract;
-import com.artyhacker.popularmovies.service.DetailService;
 import com.artyhacker.popularmovies.ui.UnScrollListView;
 import com.squareup.picasso.Picasso;
 
@@ -176,7 +173,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     /**
      * Loader
      */
-    private DetailMsgReceiver detailMsgReceiver;
+    //private DetailMsgReceiver detailMsgReceiver;
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         mContext = getActivity();
@@ -184,20 +181,23 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         resolver = getActivity().getContentResolver();
 
+        /*
         detailMsgReceiver = new DetailMsgReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.artyhacker.popularmovies.DETAIL_LOAD_FINISHED");
         getActivity().registerReceiver(detailMsgReceiver, intentFilter);
+        */
 
         super.onActivityCreated(savedInstanceState);
     }
 
     @Override
     public void onDestroy() {
+        /*
         if (detailServiceIntent != null) {
             getActivity().stopService(detailServiceIntent);
         }
-        getActivity().unregisterReceiver(detailMsgReceiver);
+        getActivity().unregisterReceiver(detailMsgReceiver);*/
         super.onDestroy();
     }
 
@@ -209,7 +209,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         return null;
     }
 
-    private Intent detailServiceIntent;
+    //private Intent detailServiceIntent;
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (!data.moveToFirst()) {
@@ -217,6 +217,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         }
 
         id = data.getString(COL_MOVIE_ID);
+
+        getVideosAndReviews(id);
+
         contentUri = Uri.parse(MovieContract.CONTENT_BASE_URI + "/" + id);
         favoriteUri = Uri.parse(MovieContract.CONTENT_FAVORITE_BASE_URI + "/" + id);
         isFavorite = isFavorite(id);
@@ -230,9 +233,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         /**
          * start DetailService
          */
+        /*
         detailServiceIntent = new Intent(getActivity(), DetailService.class);
         detailServiceIntent.putExtra(DetailService.MOVIE_ID_EXTRA, id);
         getActivity().startService(detailServiceIntent);
+        */
+
 
         String titleString = data.getString(COL_MOVIE_TITLE);
         String imageString = data.getString(COL_MOVIE_IMAGE);
@@ -298,14 +304,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
 
-
+/*
     public class DetailMsgReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             String receiveId = intent.getStringExtra(DetailService.MOVIE_ID_EXTRA);
             getVideosAndReviews(receiveId);
         }
-    }
+    }*/
 
     private static void getVideosAndReviews(final String receiveId) {
         new Thread(new Runnable() {

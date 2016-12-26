@@ -4,8 +4,6 @@
 
     <item android:title="@string/menu_setting"
         android:id="@+id/menu_setting" />
-    <item android:title="@string/menu_refresh"
-        android:id="@+id/menu_refresh"/>
     <item android:title="@string/menu_collect"
         android:id="@+id/menu_collect" />
     <item android:title="@string/menu_all"

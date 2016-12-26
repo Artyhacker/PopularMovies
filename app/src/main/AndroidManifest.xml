@@ -41,10 +41,6 @@
                 android:value=".MovieListActivity" />
         </activity>
 
-        <service android:name=".service.MovieService"/>
-        <service android:name=".service.DetailService"/>
-        <receiver android:name=".service.MovieService$AlarmReceiver"/>
-
         <provider
             android:name=".provider.MovieProvider"
             android:authorities="com.artyhacker.popularmovies"

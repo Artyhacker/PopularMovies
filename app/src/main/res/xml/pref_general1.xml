@@ -20,4 +20,14 @@
         android:entries="@array/pref_pollFrequency_entries"
         android:entryValues="@array/pref_pollFrequency_values" />
 
+
+    <SwitchPreference
+        android:disableDependentsState="true"
+        android:summaryOff="最热电影通知关闭"
+        android:summaryOn="最热电影通知打开"
+        android:switchTextOff="通知关闭"
+        android:switchTextOn="通知打开"
+        android:defaultValue="true"
+        android:key="@string/pref_notify_key"
+        />
 </PreferenceScreen>

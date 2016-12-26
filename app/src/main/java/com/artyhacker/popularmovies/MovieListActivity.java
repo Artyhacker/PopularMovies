@@ -3,6 +3,7 @@ package com.artyhacker.popularmovies;
 import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.artyhacker.popularmovies.common.ApiConfig;
 import com.artyhacker.popularmovies.common.MovieContract;
 
 
@@ -28,6 +30,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
     private SharedPreferences prefs;
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
     private static long pollFrequency = 1;
+
 
     public static Account mAccount;
 
@@ -41,6 +44,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
 
         if (findViewById(R.id.movie_detail_container) != null) {
             mTwoPane = true;
+            Toast.makeText(this, "选择电影条目查看详细信息", Toast.LENGTH_LONG).show();
             if (savedInstanceState == null) {
                 getFragmentManager().beginTransaction()
                         .replace(R.id.movie_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
@@ -54,7 +58,8 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
         prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         mSortType = prefs.getString(getString(R.string.pref_sortType_key), getString(R.string.pref_sortType_default));
 
-        //Toast.makeText(mContext, "请在右上角点击刷新",Toast.LENGTH_SHORT).show();
+
+
 
         /**
          * add Account
@@ -80,6 +85,8 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
          * load MovieList is Popular or TopRates
          */
         String sortType = prefs.getString(getString(R.string.pref_sortType_key), getString(R.string.pref_sortType_default));
+        Log.d("MovieListActivity", "movieType: " + sortType + " - " + ApiConfig.getMovieType(mContext));
+
         if (sortType != null && !sortType.equals(mSortType)) {
             MovieListFragment movieListFragment = (MovieListFragment) getFragmentManager().findFragmentById(R.id.fragment_movie_list);
             if (null != movieListFragment) {
@@ -89,6 +96,16 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
         }
 
         /**
+         * notify switch
+         */
+        boolean notifyIsOpen = prefs.getBoolean(getString(R.string.pref_notify_key), true);
+        if (!notifyIsOpen) {
+            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            manager.cancel(1);
+        }
+
+
+        /**
          * load Poll Frequency
          */
         pollFrequency = Long.parseLong(prefs.getString(getString(R.string.pref_pollFrequency_key),
@@ -96,17 +113,10 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
         long pollFrequencyWithSecond = 60*60*pollFrequency;
         AccountManager accountManager = (AccountManager) getSystemService(ACCOUNT_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(mContext, "设置自动同步需添加账户权限！", Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext, "请在'设置-账户'中打开同步功能！", Toast.LENGTH_LONG).show();
             return;
         }
         Account account = accountManager.getAccountsByType("artyhacker.com")[0];
-
-        if (pollFrequency == 1000) {
-            ContentResolver.cancelSync(account, MovieContract.CONTENT_AUTHORITY);
-            Log.d("MovieListActivity", "同步频率： 取消自动同步！");
-            return;
-        }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             SyncRequest request = new SyncRequest.Builder()
                     .syncPeriodic(pollFrequencyWithSecond, pollFrequencyWithSecond / 3)
@@ -119,6 +129,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
         }
         ContentResolver.setSyncAutomatically(account, MovieContract.CONTENT_AUTHORITY, true);
         Log.d("MovieListActivity", "同步频率： " + pollFrequency + " 小时");
+
     }
 
     @Override
@@ -138,4 +149,5 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
             startActivity(intent);
         }
     }
+
 }

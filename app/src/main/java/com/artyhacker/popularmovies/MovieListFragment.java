@@ -1,5 +1,9 @@
 package com.artyhacker.popularmovies;
 
+import android.Manifest;
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Fragment;
 import android.app.LoaderManager;
@@ -11,10 +15,19 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
+import android.content.SharedPreferences;
+import android.content.SyncRequest;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +37,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.artyhacker.popularmovies.adapter.MovieListAdapter;
 import com.artyhacker.popularmovies.bean.MovieBean;
@@ -41,6 +55,9 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
     private static String movieType = "";
     public static final int MOVIE_LOADER_ID = 0;
     public static boolean isFavoriteList = false;
+
+    public static final String IS_FIRST_SWICH = "ifs"; //标记是否第一次切换POP/TOP
+
 
     private ArrayList<MovieBean> movieBeanArray;
     private GridView gridView;
@@ -80,6 +97,7 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
     public interface mCallback {
         public void onItemSelect(Uri movieUri);
     }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,23 +141,30 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
 
 
     private void getMoviesList() {
-        /**
-         * start MovieService
-         */
-        /*
-        Intent alarmIntent = new Intent(getActivity(), MovieService.AlarmReceiver.class);
-        alarmIntent.putExtra(MovieService.GET_MOVIE_URL_EXTRA, MovieContract.CONTENT_BASE_URI);
-        PendingIntent pi = PendingIntent.getBroadcast(getActivity(), 0, alarmIntent, PendingIntent.FLAG_ONE_SHOT);
-        AlarmManager am = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 1000, pi);
-        */
 
         /*requestSync*/
         Bundle settingsBundle = new Bundle();
         settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(MovieListActivity.mAccount, MovieContract.CONTENT_AUTHORITY, settingsBundle);
 
+        settingsBundle.putString("movieType", ApiConfig.getMovieType(getActivity()));
+        settingsBundle.putString("movieUrl", ApiConfig.getMovieListUrl(getActivity()).toString());
+
+        ContentResolver.requestSync(MovieListActivity.mAccount, MovieContract.CONTENT_AUTHORITY, settingsBundle);
+    }
+
+    public void onSortTypeChanged(){
+        mPosition = 0;
+        SharedPreferences sp = getActivity().getSharedPreferences(IS_FIRST_SWICH, Context.MODE_PRIVATE);
+        boolean isFirstSwitch = sp.getBoolean(IS_FIRST_SWICH, true);
+        if (isFirstSwitch) {
+            sp.edit().putBoolean(IS_FIRST_SWICH, false).apply();
+            getMoviesList();
+            Log.d("MovieListFragment", "第一次切换");
+        } else {
+            getMovieListInLocal();
+            Log.d("MovieListFragment", "不是第一次切换");
+        }
     }
 
     /**
@@ -198,7 +223,8 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         public void onReceive(Context context, Intent intent) {
             boolean loadFinishedFlag = intent.getBooleanExtra(MovieSyncAdapter.LOAD_FINISHED_FLAG, false);
             movieType = intent.getStringExtra(MovieSyncAdapter.MOVIE_TYPE_FLAG);
-            Log.d("MovieListFragment", "receive broadcast! loadFinished: " + loadFinishedFlag);
+            Log.d("MovieListFragment", "receive broadcast! loadFinished: " + loadFinishedFlag + " - movieType: " + movieType);
+            Log.d("MovieListFragment", "Actrally movieType: " + ApiConfig.getMovieType(getActivity()));
             if (loadFinishedFlag) {
                 getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, MovieListFragment.this);
             }
@@ -218,11 +244,11 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
+            /*
             case R.id.menu_refresh:
-
-
                 getMoviesList();
                 break;
+                */
             case R.id.menu_setting:
                 Intent intent = new Intent(getActivity(), SettingActivity.class);
                 startActivity(intent);
@@ -251,9 +277,7 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
     }
 
-    public void onSortTypeChanged(){
-        getMoviesList();
-    }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
