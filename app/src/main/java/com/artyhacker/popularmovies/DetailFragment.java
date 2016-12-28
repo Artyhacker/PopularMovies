@@ -74,8 +74,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int COL_MOVIE_REVIEWS = 10;
 
 
-    private static ArrayList<MovieTrailer> movieTrailerList = new ArrayList<>();
-    private static ArrayList<MovieReview> movieReviewsList = new ArrayList<>();
+    private static ArrayList<MovieTrailer> movieTrailerList;
+    private static ArrayList<MovieReview> movieReviewsList;
     private static String movieRuntime = "";
     private static MovieTrailerAdapter trailerAdapter;
     private static MovieReviewAdapter reviewAdapter;
@@ -126,6 +126,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (arguments != null) {
             mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
         }
+
+        movieTrailerList = new ArrayList<>();
+        movieReviewsList = new ArrayList<>();
 
         View view = inflater.inflate(R.layout.fragment_movie_details, container, false);
         tvRuntime = (TextView) view.findViewById(R.id.movie_runtime_tv);

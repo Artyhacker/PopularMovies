@@ -4,12 +4,12 @@
     <string name="menu_refresh">刷新</string>
     <string name="title_activity_setting">设置中心</string>
 
-    <string name="pref_sortType">排序方式</string>
+    <string name="pref_sortType">电影类型</string>
     <string name="pref_sortType_default">0</string>
     <string name="pref_sortType_key">pref_sortType_key</string>
     <string-array name="pref_sortType_entries">
-        <item>按热度排序</item>
-        <item>按评分排序</item>
+        <item>热门电影</item>
+        <item>高分电影</item>
     </string-array>
     <string-array name="pref_sortType_values">
         <item>0</item>
