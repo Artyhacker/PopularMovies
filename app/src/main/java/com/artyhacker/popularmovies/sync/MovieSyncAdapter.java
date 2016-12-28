@@ -1,6 +1,7 @@
 package com.artyhacker.popularmovies.sync;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
@@ -10,18 +11,17 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.artyhacker.popularmovies.DetailActivity;
-import com.artyhacker.popularmovies.MovieListActivity;
 import com.artyhacker.popularmovies.R;
 import com.artyhacker.popularmovies.bean.MovieBean;
 import com.artyhacker.popularmovies.common.ApiConfig;
@@ -43,6 +43,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static android.content.Context.NOTIFICATION_SERVICE;
+
 /**
  * Created by dh on 16-12-24.
  */
@@ -55,24 +57,17 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     private static String LAST_ID_KEY = "lik";
     private ContentResolver resolver;
     private static String movieType;
-    private static Context mContext;
     private ArrayList<MovieBean> movieBeanArray;
 
     public MovieSyncAdapter(Context context, boolean autoInitialize) {
-        //super(context, autoInitialize);
-        this(context, autoInitialize, false);
+        super(context, autoInitialize);
     }
 
-    public MovieSyncAdapter(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
-        super(context, autoInitialize, allowParallelSyncs);
-        mContext = getContext();
-        resolver = mContext.getContentResolver();
-    }
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         movieBeanArray = new ArrayList<>();
-
+        resolver = getContext().getContentResolver();
         String typeExtras = extras.getString("movieType");
         if (typeExtras != null) {
             try {
@@ -83,12 +78,10 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                 e.printStackTrace();
             }
         } else {
-            movieType = ApiConfig.getMovieType(mContext);
-            URL url = ApiConfig.getMovieListUrl(mContext);
+            movieType = ApiConfig.getMovieType(getContext());
+            URL url = ApiConfig.getMovieListUrl(getContext());
             getMovieListFromNetwork(url);
         }
-
-
     }
 
     @Override
@@ -96,51 +89,65 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         super.onSyncCanceled();
     }
 
-    /**
-     * notify
-     */
-    private void checkPopFirstChanged(Context context) {
+    public static void syncImmediately(Context context, Bundle bundle) {
+        ContentResolver.requestSync(getSyncAccount(context),
+                context.getString(R.string.content_authority), bundle);
+    }
 
-        Cursor cursor = resolver.query(Uri.parse(MovieContract.CONTENT_BASE_URI), null, "getType=?",
-                new String[]{MovieContract.MovieEntry.GET_TYPE_VALUE_POP}, null);
-        if (cursor.moveToFirst()) {
-            String newId = cursor.getString(cursor.getColumnIndex("_id"));
-            String title = cursor.getString(cursor.getColumnIndex("title"));
-
-            SharedPreferences sp = context.getSharedPreferences(NOTIFY_SP_NAME, Context.MODE_PRIVATE);
-            String lastId = sp.getString(LAST_ID_KEY, newId);
-            if (!lastId.equals(newId)) {  //应该为不等于，此处仅用于测试通知功能
-                sp.edit().putString(LAST_ID_KEY, newId).apply();
-                notifyMovie(context, newId, title);
+    public static Account getSyncAccount(Context context) {
+        AccountManager accountManager =
+                (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
+        Account newAccount = new Account(
+                context.getString(R.string.app_name), context.getString(R.string.sync_account_type));
+        if ( null == accountManager.getPassword(newAccount) ) {
+            if (!accountManager.addAccountExplicitly(newAccount, "", null)) {
+                return null;
             }
-            cursor.close();
+            onAccountCreated(newAccount, context);
+        }
+        return newAccount;
+    }
+
+    public static void configurePeriodicSync(Context context) {
+        SharedPreferences sp = getDefaultSharedPreferencesMultiprocess(context);
+        long pollFrequency = Long.parseLong(sp.getString(context.getString(R.string.pref_pollFrequency_key),
+                context.getString(R.string.pref_pollFrequency_default)));
+        long syncInterval = 60 * 60 * pollFrequency;
+        long flexTime = syncInterval/3;
+        Account account = getSyncAccount(context);
+        String authority = context.getString(R.string.content_authority);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            SyncRequest request = new SyncRequest.Builder().
+                    syncPeriodic(syncInterval, flexTime).
+                    setSyncAdapter(account, authority).
+                    setExtras(new Bundle()).build();
+            ContentResolver.requestSync(request);
+        } else {
+            ContentResolver.addPeriodicSync(account,
+                    authority, new Bundle(), syncInterval);
         }
     }
 
-    private void notifyMovie(Context context, String id, String title) {
+    private static void onAccountCreated(Account newAccount, Context context) {
 
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
-                .setAutoCancel(true)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("最热电影抢先看！")
-                .setContentText(title);
-        Intent resultIntent = new Intent(context, DetailActivity.class);
-        resultIntent.setData(Uri.parse(MovieContract.CONTENT_BASE_URI + "/" + id));
+        MovieSyncAdapter.configurePeriodicSync(context);
+        ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
 
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        stackBuilder.addParentStack(DetailActivity.class);
-        stackBuilder.addNextIntent(resultIntent);
+        Bundle settingsBundle = new Bundle();
+        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        syncImmediately(context, settingsBundle);
+    }
 
-        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-        mBuilder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(1, mBuilder.build());
+    public static void initializeSyncAdapter(Context context) {
+        getSyncAccount(context);
     }
 
 
     /**
      * getMovieList
      */
+
     private void getMovieListFromNetwork(URL url) {
         movieBeanArray = new ArrayList<>();
         OkHttpClient client = new OkHttpClient();
@@ -160,7 +167,6 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         });
     }
-
 
     private void getMoviesListFromJson(String moviesJsonStr) {
         try {
@@ -233,6 +239,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
+
     /**
      * getMoviesDetails
      */
@@ -255,11 +262,11 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             Intent intent = new Intent("com.artyhacker.popularmovies.LOAD_FINISHED");
             intent.putExtra(LOAD_FINISHED_FLAG, true);
             intent.putExtra(MOVIE_TYPE_FLAG, movieType);
-            mContext.sendBroadcast(intent);
+            getContext().sendBroadcast(intent);
             cursor.close();
         }
 
-        checkPopFirstChanged(mContext);
+        checkNotify(getContext());
     }
 
     private void getMovieDetails(URL movieDetailsUrl, final String movieId) {
@@ -295,10 +302,73 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             values.put(MovieContract.MovieEntry.COLUMN_VIDEOS, movieTrailers.toString());
             values.put(MovieContract.MovieEntry.COLUMN_REVIEWS, movieReviews.toString());
             Uri uri = Uri.parse(MovieContract.CONTENT_BASE_URI + "/" + movieId);
-            int updateRows = mContext.getContentResolver().update(uri, values, null, null);
+            int updateRows = getContext().getContentResolver().update(uri, values, null, null);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
+
+
+    /**
+     * notify
+     */
+    private void checkNotify(Context context) {
+        SharedPreferences prefs = getDefaultSharedPreferencesMultiprocess(context);
+        String prefNotifyKey = context.getString(R.string.pref_notify_key);
+        boolean notifyIsOpen = prefs.getBoolean(prefNotifyKey, Boolean.parseBoolean(context.getString(R.string.pref_notify_default)));
+        if (notifyIsOpen) {
+            checkPopFirstChanged(context);
+        }
+    }
+
+    private void checkPopFirstChanged(Context context) {
+
+        Cursor cursor = resolver.query(Uri.parse(MovieContract.CONTENT_BASE_URI), null, "getType=?",
+                new String[]{MovieContract.MovieEntry.GET_TYPE_VALUE_POP}, null);
+        if (cursor.moveToFirst()) {
+            String newId = cursor.getString(cursor.getColumnIndex("_id"));
+            String title = cursor.getString(cursor.getColumnIndex("title"));
+
+            SharedPreferences sp = context.getSharedPreferences(NOTIFY_SP_NAME, Context.MODE_PRIVATE);
+            String lastId = sp.getString(LAST_ID_KEY, newId);
+            if (!lastId.equals(newId)) {
+                sp.edit().putString(LAST_ID_KEY, newId).apply();
+                notifyMovie(context, newId, title);
+            }
+            cursor.close();
+        }
+    }
+
+    private void notifyMovie(Context context, String id, String title) {
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
+                .setAutoCancel(true)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("最热电影抢先看！")
+                .setContentText(title);
+        Intent resultIntent = new Intent(context, DetailActivity.class);
+        resultIntent.setData(Uri.parse(MovieContract.CONTENT_BASE_URI + "/" + id));
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        stackBuilder.addParentStack(DetailActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        mNotificationManager.notify(1, mBuilder.build());
+    }
+
+
+    /**
+     * 修复在SyncAdapter中获取不到参数的更新值问题
+     */
+    public static SharedPreferences getDefaultSharedPreferencesMultiprocess(Context context) {
+        return context.getSharedPreferences(context.getPackageName() + "_preferences",
+                Context.MODE_PRIVATE | Context.MODE_MULTI_PROCESS);
+    }
+
+
+
 }

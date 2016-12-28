@@ -1,13 +1,7 @@
 package com.artyhacker.popularmovies;
 
-import android.Manifest;
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.Fragment;
 import android.app.LoaderManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -16,18 +10,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.SharedPreferences;
-import android.content.SyncRequest;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,7 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
 import com.artyhacker.popularmovies.adapter.MovieListAdapter;
 import com.artyhacker.popularmovies.bean.MovieBean;
@@ -150,7 +135,8 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         settingsBundle.putString("movieType", ApiConfig.getMovieType(getActivity()));
         settingsBundle.putString("movieUrl", ApiConfig.getMovieListUrl(getActivity()).toString());
 
-        ContentResolver.requestSync(MovieListActivity.mAccount, MovieContract.CONTENT_AUTHORITY, settingsBundle);
+        //ContentResolver.requestSync(MovieListActivity.mAccount, MovieContract.CONTENT_AUTHORITY, settingsBundle);
+        MovieSyncAdapter.syncImmediately(getActivity(), settingsBundle);
     }
 
     public void onSortTypeChanged(){
@@ -160,10 +146,8 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
         if (isFirstSwitch) {
             sp.edit().putBoolean(IS_FIRST_SWICH, false).apply();
             getMoviesList();
-            Log.d("MovieListFragment", "第一次切换");
         } else {
             getMovieListInLocal();
-            Log.d("MovieListFragment", "不是第一次切换");
         }
     }
 
@@ -224,16 +208,15 @@ public class MovieListFragment extends Fragment implements LoaderManager.LoaderC
             boolean loadFinishedFlag = intent.getBooleanExtra(MovieSyncAdapter.LOAD_FINISHED_FLAG, false);
             movieType = intent.getStringExtra(MovieSyncAdapter.MOVIE_TYPE_FLAG);
             Log.d("MovieListFragment", "receive broadcast! loadFinished: " + loadFinishedFlag + " - movieType: " + movieType);
-            Log.d("MovieListFragment", "Actrally movieType: " + ApiConfig.getMovieType(getActivity()));
             if (loadFinishedFlag) {
                 getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, MovieListFragment.this);
             }
         }
     }
 
+
     /**
      * Menu
-     * @param menu
      */
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

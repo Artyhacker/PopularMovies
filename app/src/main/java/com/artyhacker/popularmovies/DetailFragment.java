@@ -93,6 +93,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView tvVideosDes;
     private TextView tvReviewsDes;
     private TextView tvMovieTitle;
+    private TextView tvTips;
     private RatingBar ratingBar;
     private boolean isFavorite;
     private static ContentResolver resolver;
@@ -135,6 +136,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         tvReviewsDes = (TextView) view.findViewById(R.id.reviews_des_tv);
         ratingBar = (RatingBar) view.findViewById(R.id.movie_score_rb);
         tvMovieTitle = (TextView) view.findViewById(R.id.movie_title_tv);
+        tvTips = (TextView) view.findViewById(R.id.tips_detail_tv);
 
         btnFavorite.setOnClickListener(this);
 
@@ -173,7 +175,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     /**
      * Loader
      */
-    //private DetailMsgReceiver detailMsgReceiver;
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         mContext = getActivity();
@@ -181,24 +182,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         resolver = getActivity().getContentResolver();
 
-        /*
-        detailMsgReceiver = new DetailMsgReceiver();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("com.artyhacker.popularmovies.DETAIL_LOAD_FINISHED");
-        getActivity().registerReceiver(detailMsgReceiver, intentFilter);
-        */
-
         super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
-    public void onDestroy() {
-        /*
-        if (detailServiceIntent != null) {
-            getActivity().stopService(detailServiceIntent);
-        }
-        getActivity().unregisterReceiver(detailMsgReceiver);*/
-        super.onDestroy();
     }
 
     @Override
@@ -209,7 +193,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         return null;
     }
 
-    //private Intent detailServiceIntent;
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (!data.moveToFirst()) {
@@ -229,16 +212,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         } else {
             btnFavorite.setText(R.string.btn_text_favorite);
         }
-
-        /**
-         * start DetailService
-         */
-        /*
-        detailServiceIntent = new Intent(getActivity(), DetailService.class);
-        detailServiceIntent.putExtra(DetailService.MOVIE_ID_EXTRA, id);
-        getActivity().startService(detailServiceIntent);
-        */
-
 
         String titleString = data.getString(COL_MOVIE_TITLE);
         String imageString = data.getString(COL_MOVIE_IMAGE);
@@ -271,6 +244,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             tvReviewsDes.setVisibility(View.VISIBLE);
             ratingBar.setVisibility(View.VISIBLE);
             tvMovieTitle.setVisibility(View.VISIBLE);
+            tvTips.setVisibility(View.GONE);
         }
 
 
@@ -302,16 +276,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             }
         }
     }
-
-
-/*
-    public class DetailMsgReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String receiveId = intent.getStringExtra(DetailService.MOVIE_ID_EXTRA);
-            getVideosAndReviews(receiveId);
-        }
-    }*/
 
     private static void getVideosAndReviews(final String receiveId) {
         new Thread(new Runnable() {
@@ -363,6 +327,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         }).start();
     }
 
+
+    /**
+     * Favorite Movie
+     */
 
     public boolean isFavorite(String id) {
         Uri uri = Uri.parse(MovieContract.CONTENT_FAVORITE_BASE_URI + "/" + id);

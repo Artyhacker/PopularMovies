@@ -13,6 +13,16 @@
         android:orientation="vertical"
         >
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/details_title_textsize"
+            android:padding="@dimen/details_title_padding_port"
+            android:background="@color/movie_dark_blue"
+            android:textColor="@color/movie_details_text"
+            android:text="@string/tips_detail_tv"
+            android:id="@+id/tips_detail_tv"
+            android:gravity="center"/>
 
         <TextView
             android:id="@+id/movie_title_tv"
@@ -57,8 +67,8 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginLeft="5dp"
                 tools:text="5.7"
-                android:textColor="#ff0000"
-                android:textSize="15sp"/>
+                android:textColor="@color/movie_runtime_red"
+                android:textSize="@dimen/movie_runtime_text_size"/>
 
             <TextView
                 android:id="@+id/movie_date_tv"
@@ -81,10 +91,11 @@
                 tools:text="173分钟"/>
 
             <Button
-                android:layout_width="160dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="15dp"
+                android:layout_marginRight="15dp"
                 android:layout_toRightOf="@id/movie_image_iv"
                 android:layout_alignParentBottom="true"
                 android:id="@+id/movie_collect_btn"

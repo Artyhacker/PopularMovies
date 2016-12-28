@@ -21,4 +21,5 @@
     <dimen name="details_score_margintop_land">20dp</dimen>
     <dimen name="details_score_marginleft_land">5dp</dimen>
     <dimen name="details_content_margin_land">10dp</dimen>
+    <dimen name="movie_runtime_text_size">15sp</dimen>
 </resources>

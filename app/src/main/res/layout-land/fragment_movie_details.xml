@@ -13,6 +13,17 @@
 
 
         <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="26sp"
+            android:padding="@dimen/details_title_padding_port"
+            android:background="@color/movie_dark_blue"
+            android:textColor="@color/movie_details_text"
+            android:text="@string/tips_detail_tv"
+            android:id="@+id/tips_detail_tv"
+            android:gravity="center"/>
+
+        <TextView
             android:id="@+id/movie_title_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
