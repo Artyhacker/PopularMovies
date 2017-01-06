@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.artyhacker.popularmovies.DetailActivity;
@@ -292,12 +293,28 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void saveMovieDetails(String responseJson, String movieId) {
 
+        if (TextUtils.isEmpty(responseJson) || TextUtils.isEmpty(movieId)) {
+            return;
+        }
+
         try {
             JSONObject object = new JSONObject(responseJson);
-            String movieRuntime = object.getString("runtime");
-            JSONArray movieTrailers = object.getJSONObject("trailers").getJSONArray("youtube");
-            JSONArray movieReviews = object.getJSONObject("reviews").getJSONArray("results");
             ContentValues values = new ContentValues();
+
+            String movieRuntime = "";
+            JSONArray movieTrailers = null;
+            JSONArray movieReviews = null;
+
+            if (object.has("runtime")) {
+                movieRuntime = object.getString("runtime");
+            }
+            if (object.has("trailers") && object.getJSONObject("trailers").has("youtube")) {
+                movieTrailers = object.getJSONObject("trailers").getJSONArray("youtube");
+            }
+            if (object.has("reviews") && object.getJSONObject("reviews").has("results")) {
+                movieReviews = object.getJSONObject("reviews").getJSONArray("results");
+            }
+
             values.put(MovieContract.MovieEntry.COLUMN_RUNTIME, movieRuntime);
             values.put(MovieContract.MovieEntry.COLUMN_VIDEOS, movieTrailers.toString());
             values.put(MovieContract.MovieEntry.COLUMN_REVIEWS, movieReviews.toString());
